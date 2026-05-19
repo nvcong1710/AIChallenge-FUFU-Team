@@ -1,0 +1,81 @@
+storage:
+  data_dir: ./data
+  index_path: ./data/index.faiss
+  db_path: ./data/meta.sqlite
+  thumbnail_dir: ./data/thumbnails
+
+models:
+  siglip: google/siglip2-base-patch16-384
+  translator: facebook/nllb-200-distilled-600M
+  paraphraser: Qwen/Qwen2.5-3B-Instruct
+  device: cuda
+
+extractors:
+  enable_ocr: true
+  enable_caption: false               # tắt Qwen-VL — SigLIP + OCR + detection đủ làm signal
+  enable_detection: true
+  enable_asr: true
+
+  ocr_lang: vi                       # 'vi' nếu PaddleOCR phiên bản hỗ trợ; fallback 'en'
+  ocr_min_confidence: 0.5
+
+  caption_model: Qwen/Qwen2.5-VL-7B-Instruct
+  caption_max_tokens: 96
+  caption_quant_4bit: true            # bật INT4 để fit 3090 24GB cùng các model khác
+  caption_prompt: "Mô tả ngắn gọn (1-2 câu) nội dung chính của ảnh bằng tiếng Việt: đối tượng nổi bật, hành động, bối cảnh, văn bản nếu có."
+
+  detection_model: yolov8l-world.pt   # ultralytics tự tải nếu chưa có
+  detection_min_confidence: 0.25
+  detection_classes: null             # null = dùng DEFAULT_CLASSES trong code; hoặc list custom
+
+  asr_model: vinai/PhoWhisper-medium  # large nếu muốn chất lượng; medium nhanh hơn ~2x
+  asr_lang: vi
+  asr_chunk_length_sec: 30
+
+ingest:
+  image:
+    max_size: 1024                    # resize cạnh dài về 1024 trước khi extract
+  audio:
+    target_sample_rate: 16000
+    # Segments = ASR chunks (đoạn lời tự nhiên Whisper trả về)
+    use_asr_as_segments: true
+    max_segment_len_sec: 15.0           # chunk dài hơn → subdivide
+    merge_close_chunks_sec: 0.5         # gộp chunk cách nhau ≤ 0.5s
+    # Fallback sliding window — chỉ khi không phát hiện speech
+    segment_length_sec: 10.0
+    segment_stride_sec: 5.0
+  video:
+    target_height: 720
+    target_fps: 25
+    shot_detect_threshold: 27.0
+    # Segments = shots với start/end chính xác từ PySceneDetect
+    use_shots_as_segments: true
+    # Shot dài hơn ngưỡng này sẽ subdivide để không bị "segment khổng lồ"
+    max_segment_len_sec: 15.0
+    # Adaptive keyframe: lấy theo mật độ thời gian thay vì cố định / shot
+    keyframe_density_per_sec: 1.0     # 1 keyframe / 1s nội dung shot
+    min_keyframes_per_shot: 1
+    max_keyframes_per_shot: 12
+    extract_audio_for_asr: true
+    # Fallback sliding window — chỉ dùng nếu use_shots_as_segments=false
+    segment_length_sec: 5.0
+    segment_stride_sec: 2.5
+
+retrieval:
+  top_k_dense: 500
+  top_k_bm25_visual: 200
+  top_k_bm25_asr: 200
+  top_k_final: 20
+  weights:
+    dense: 0.4
+    bm25_visual: 0.25
+    bm25_asr: 0.5                     # > dense để audio-only thắng visual-only khi tie
+  hnsw_m: 32
+  hnsw_ef_construct: 200
+  hnsw_ef_search: 128
+
+query_expansion:
+  enable_translation: true
+  enable_paraphrase: true
+  num_paraphrases: 3
+  paraphrase_max_tokens: 120

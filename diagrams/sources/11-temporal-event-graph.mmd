@@ -1,0 +1,34 @@
+flowchart TB
+ subgraph ING11[" INGEST"]
+ V11[Video] --> SHOT[Shot Detection<br/>TransNetV2]
+ SHOT --> KF11[Keyframe per shot]
+ KF11 --> VLM11[Qwen-VL: sinh 15<br/>synthetic queries<br/>per frame]
+ VLM11 --> EMB11[Embed 15 queries]
+ EMB11 --> VDB11[(Weaviate<br/>multi-query index)]
+ SHOT --> GRAPH[Graph Builder]
+ GRAPH --> NODE[Node: shot]
+ GRAPH --> EDGE_N[Edge: next]
+ GRAPH --> EDGE_C[Edge: cut]
+ GRAPH --> EDGE_S[Edge: cont semantic]
+ NODE --> NEO[(Neo4j)]
+ EDGE_N --> NEO
+ EDGE_C --> NEO
+ EDGE_S --> NEO
+ end
+
+ subgraph QRY11[" QUERY chuỗi sự kiện"]
+ Q11(["Phỏng vấn ông X,<br/>rồi biểu đồ chứng khoán"]) --> LLM11[LLM Pattern Parser]
+ LLM11 --> PATTERN["MATCH a-[:next*1..3]→b<br/>WHERE a.entity~'ông X'<br/>AND a.action~'phỏng vấn'<br/>AND b.scene~'biểu đồ'<br/>AND b.ocr~'VN-Index'"]
+ PATTERN --> CYPHER[Run on Neo4j]
+ NEO -.-> CYPHER
+ CYPHER --> PAIRS[Matching pairs a,b]
+ PAIRS --> RANK11[Rank by combined score]
+ RANK11 --> SUB[Submit start_a or middle]
+ end
+
+ subgraph QRY11B[" QUERY đơn lẻ"]
+ Q11B([Query đơn]) --> EMB_Q[Embed query]
+ EMB_Q --> SEARCH11[Match với 15 synthetic<br/>queries của mỗi frame]
+ VDB11 -.-> SEARCH11
+ SEARCH11 --> TOPK11[Top-K]
+ end

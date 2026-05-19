@@ -1,0 +1,25 @@
+flowchart TB
+ subgraph ING7[" INGEST"]
+ V7[Video] --> KF7[Keyframes]
+ KF7 --> BLIP7[BLIP-2<br/>Q-Former]
+ KF7 --> YOLO7[YOLOWorldv2<br/>open-vocab detect]
+ KF7 --> OCR7[PP-OCR<br/>chữ trên màn]
+ KF7 --> ASR7[ASR<br/>hội thoại]
+ BLIP7 --> VDB7[(Vector Index)]
+ YOLO7 --> KB7[(Knowledge Base<br/>objects)]
+ OCR7 --> KB7
+ ASR7 --> KB7
+ end
+
+ subgraph QRY7[" QUERY"]
+ Q7([Query tiếng Việt]) --> TRANS[envit5-translation<br/>VI → EN]
+ TRANS --> EN_Q[English Query]
+ EN_Q --> BLIPT[BLIP-2 Text Encoder]
+ BLIPT --> SEARCH7[Vector Search]
+ VDB7 -.-> SEARCH7
+ SEARCH7 --> CAND7[Candidates]
+ CAND7 --> KPI[KPI System<br/>time-based segment]
+ KB7 -.-> KPI
+ KPI --> ELEV[Elevated<br/>Keyframe Selection]
+ ELEV --> TOPK7[Top-K]
+ end

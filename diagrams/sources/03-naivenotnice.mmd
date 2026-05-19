@@ -1,0 +1,26 @@
+flowchart TB
+ subgraph INGEST3[" INGEST (5 modules song song)"]
+ V3[Video] --> KF3[Keyframes + Audio]
+ KF3 --> M1[OCR Module<br/>biển số/biển hiệu]
+ KF3 --> M2[ASR Module<br/>Whisper/PhoWhisper]
+ KF3 --> M3[CLIP Encoder<br/>shared latent]
+ KF3 --> M4[Image Captioning<br/>BLIP]
+ KF3 --> M5[Object + Color<br/>Detection]
+ M1 --> META[(Metadata Store)]
+ M2 --> META
+ M4 --> META
+ M5 --> META
+ M3 --> VDB[(Vector DB)]
+ end
+
+ subgraph QUERY3[" QUERY"]
+ Q3([Query]) --> P31[CLIP text embed]
+ Q3 --> P32[Keyword extract]
+ P31 --> SR1[Vector Search]
+ P32 --> SR2[Metadata Filter]
+ VDB -.-> SR1
+ META -.-> SR2
+ SR1 --> FUSION[Score Fusion]
+ SR2 --> FUSION
+ FUSION --> TOPK3[Top-K]
+ end

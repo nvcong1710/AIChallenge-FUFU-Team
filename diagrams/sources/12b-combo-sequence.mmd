@@ -1,0 +1,46 @@
+sequenceDiagram
+ autonumber
+ actor Op as Operator
+ participant UI as React UI
+ participant API as Spring Boot
+ participant AI as Python AI Service
+ participant ES as Elasticsearch
+ participant WEA as Weaviate
+ participant NEO as Neo4j
+
+ Op->>UI: Gõ query VI + chỉnh slider axis
+ UI->>API: POST /search {query, weights}
+
+ par Parallel preprocessing
+ API->>AI: translate(VI→EN)
+ API->>AI: parse temporal pattern?
+ end
+ AI-->>API: EN query + (optional) pattern
+
+ alt Có temporal pattern
+ API->>NEO: Cypher query
+ NEO-->>API: matching pairs
+ else Query đơn
+ par Cascading filter
+ API->>ES: coarse filter OCR/ASR
+ API->>WEA: 6-axis weighted search
+ end
+ ES-->>API: candidates A
+ WEA-->>API: candidates B
+ API->>AI: LaVi rerank top 500
+ AI-->>API: top-20
+ end
+
+ API-->>UI: Top-K + explanation
+ UI->>Op: Grid hiển thị
+
+ Op->>UI: Click #3, #7
+ UI->>API: POST /feedback
+ API->>API: Update session δ
+ API->>WEA: Re-search với q+δ
+ WEA-->>API: Top-K v2
+ API-->>UI: Update grid
+ UI->>Op: Kết quả tốt hơn
+
+ Op->>UI: Click submit #3
+ UI->>API: POST /submit {frame_id}

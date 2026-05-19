@@ -1,0 +1,75 @@
+storage:
+  data_dir: ./data
+  index_path: ./data/index.faiss
+  db_path: ./data/meta.sqlite
+  thumbnail_dir: ./data/thumbnails
+
+models:
+  siglip: google/siglip2-base-patch16-384
+  translator: facebook/nllb-200-distilled-600M
+  paraphraser: Qwen/Qwen2.5-3B-Instruct
+  device: cuda
+
+extractors:
+  enable_ocr: false                  # paddleocr không support py3.12, tắt cho server vast
+  enable_caption: false              # user đã quyết tắt Qwen-VL caption
+  enable_detection: true
+  enable_asr: true
+
+  ocr_lang: vi
+  ocr_min_confidence: 0.5
+
+  caption_model: Qwen/Qwen2.5-VL-7B-Instruct
+  caption_max_tokens: 96
+  caption_quant_4bit: true
+  caption_prompt: "Mô tả ngắn gọn nội dung chính của ảnh bằng tiếng Việt."
+
+  detection_model: yolov8l-world.pt
+  detection_min_confidence: 0.25
+  detection_classes: null
+
+  asr_model: vinai/PhoWhisper-medium
+  asr_lang: vi
+  asr_chunk_length_sec: 30
+
+ingest:
+  image:
+    max_size: 1024
+  audio:
+    target_sample_rate: 16000
+    use_asr_as_segments: true
+    max_segment_len_sec: 15.0
+    merge_close_chunks_sec: 0.5
+    segment_length_sec: 10.0
+    segment_stride_sec: 5.0
+  video:
+    target_height: 720
+    target_fps: 25
+    shot_detect_threshold: 27.0
+    use_shots_as_segments: true
+    max_segment_len_sec: 15.0
+    keyframe_density_per_sec: 1.0
+    min_keyframes_per_shot: 1
+    max_keyframes_per_shot: 12
+    extract_audio_for_asr: true
+    segment_length_sec: 5.0
+    segment_stride_sec: 2.5
+
+retrieval:
+  top_k_dense: 500
+  top_k_bm25_visual: 200
+  top_k_bm25_asr: 200
+  top_k_final: 20
+  weights:
+    dense: 0.6
+    bm25_visual: 0.25
+    bm25_asr: 0.15
+  hnsw_m: 32
+  hnsw_ef_construct: 200
+  hnsw_ef_search: 128
+
+query_expansion:
+  enable_translation: true
+  enable_paraphrase: true
+  num_paraphrases: 3
+  paraphrase_max_tokens: 120

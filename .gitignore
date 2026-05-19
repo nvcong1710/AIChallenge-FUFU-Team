@@ -1,0 +1,41 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.egg-info/
+.venv/
+venv/
+.env
+
+# Node
+node_modules/
+dist/
+
+# Ingest data + models (large, generated)
+data/
+test-data/
+remote_results/
+.cache/
+*.faiss
+*.sqlite
+*.sqlite-journal
+
+# Logs
+*.log
+remote_run.log
+
+# Generated reports
+eval_report.html
+bd_code.tar.gz
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.idea/
+.vscode/
+*.iml
+
+# Misc
+*.pdf

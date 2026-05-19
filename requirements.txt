@@ -1,0 +1,37 @@
+# --- core ML ---
+torch>=2.4.0
+torchvision>=0.19.0
+transformers>=4.49.0          # cần Qwen2.5-VL
+accelerate>=1.0.0
+bitsandbytes>=0.44.0          # INT4 cho Qwen-VL + paraphraser
+sentencepiece>=0.2.0
+
+# --- visual ---
+ultralytics>=8.3.0            # YOLO-World v2
+opencv-python-headless>=4.10.0
+
+# --- OCR ---
+paddleocr>=2.8.0
+paddlepaddle>=2.6.0           # đổi sang paddlepaddle-gpu nếu muốn OCR trên GPU
+
+# --- audio ---
+ffmpeg-python>=0.2.0
+soundfile>=0.12.1             # backup audio decoder
+librosa>=0.10.0               # optional: VAD / spectrogram
+
+# --- video ---
+scenedetect>=0.6.4
+
+# --- retrieval ---
+faiss-cpu>=1.9.0              # đổi sang faiss-gpu nếu dataset > 5M vector
+
+# --- serving ---
+fastapi>=0.115.0
+uvicorn[standard]>=0.32.0
+pydantic>=2.9.0
+python-multipart>=0.0.17
+
+# --- general ---
+numpy>=1.26.0
+Pillow>=10.4.0
+PyYAML>=6.0.0

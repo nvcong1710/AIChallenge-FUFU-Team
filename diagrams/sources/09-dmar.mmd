@@ -1,0 +1,37 @@
+flowchart TB
+ subgraph ING9[" INGEST — 6 axis song song"]
+ V9[Keyframe] --> A1[SCENE<br/>CLIP]
+ V9 --> A2[ACTION<br/>Action-CLIP]
+ V9 --> A3[ENTITY<br/>NER trên VL caption]
+ V9 --> A4[OCR<br/>PaddleOCR-VN]
+ V9 --> A5[AUDIO<br/>Whisper-VN]
+ V9 --> A6[TEMPORAL<br/>CLIP của ±5s clip]
+ A1 --> W1[(Class:Scene)]
+ A2 --> W2[(Class:Action)]
+ A3 --> W3[(Class:Entity)]
+ A4 --> W4[(Class:OCR)]
+ A5 --> W5[(Class:Audio)]
+ A6 --> W6[(Class:Temporal)]
+ end
+
+ subgraph QRY9[" QUERY"]
+ Q9(["Tổng Bí thư phát biểu<br/>kinh tế trên VTV1"]) --> LLM9[LLM Query<br/>Decomposer]
+ LLM9 --> DEC{Weighted<br/>Decomposition}
+ DEC -->|w=0.35| S91[Search Entity Axis]
+ DEC -->|w=0.30| S94[Search OCR Axis]
+ DEC -->|w=0.20| S95[Search Audio Axis]
+ DEC -->|w=0.10| S91s[Search Scene Axis]
+ DEC -->|w=0.05| S92[Search Action Axis]
+ W3 -.-> S91
+ W4 -.-> S94
+ W5 -.-> S95
+ W1 -.-> S91s
+ W2 -.-> S92
+ S91 --> FUSE9[Weighted Rank Fusion]
+ S94 --> FUSE9
+ S95 --> FUSE9
+ S91s --> FUSE9
+ S92 --> FUSE9
+ FUSE9 --> TOPK9[Top-K]
+ TOPK9 --> SLIDER[UI: axis weight sliders]
+ end

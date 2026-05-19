@@ -1,0 +1,28 @@
+flowchart TB
+ subgraph INGEST[" INGEST (parallel)"]
+ V2[Video] --> KF2[Keyframes]
+ KF2 --> P1[CLIP + BEiT-3<br/>image embed]
+ KF2 --> P2[CLIP2Video<br/>video embed]
+ KF2 --> P3[VFNet<br/>object detect]
+ KF2 --> P4[Vietnamese OCR<br/>Toolbox]
+ P1 --> I1[(Image Index)]
+ P2 --> I2[(Video Index)]
+ P3 --> I3[(Object Metadata)]
+ P4 --> I4[(OCR Text Index)]
+ end
+
+ subgraph QUERY[" QUERY ROUTING"]
+ OP[Operator] --> CHOICE{Search Type?}
+ CHOICE -->|text→image| S1[Image Service]
+ CHOICE -->|text→video| S2[Video Service]
+ CHOICE -->|object+count| S3[Object Service]
+ CHOICE -->|keyword| S4[OCR Service]
+ I1 -.-> S1
+ I2 -.-> S2
+ I3 -.-> S3
+ I4 -.-> S4
+ S1 --> R[Result Grid]
+ S2 --> R
+ S3 --> R
+ S4 --> R
+ end

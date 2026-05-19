@@ -1,0 +1,16 @@
+flowchart LR
+ subgraph OFFLINE[" OFFLINE INGEST"]
+ V1[Video] --> KF1[Extract Keyframes]
+ KF1 --> CLIP1[CLIP ViT-B/32<br/>Image Encoder]
+ CLIP1 --> VEC1[Vector 512d]
+ VEC1 --> FAISS[(Faiss Index)]
+ end
+
+ subgraph ONLINE[" ONLINE QUERY"]
+ Q1([Query text]) --> CLIP2[CLIP ViT-B/32<br/>Text Encoder]
+ CLIP2 --> QVEC[Query Vector]
+ QVEC --> SEARCH1[Nearest Neighbor Search]
+ FAISS -.-> SEARCH1
+ SEARCH1 --> TOPK1[Top-K Frames]
+ TOPK1 --> UI1[Operator UI]
+ end

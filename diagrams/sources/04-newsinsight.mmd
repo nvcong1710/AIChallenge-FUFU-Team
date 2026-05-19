@@ -1,0 +1,20 @@
+flowchart TB
+ subgraph ING4[" INGEST"]
+ V4[Video] --> KF4[Keyframes]
+ KF4 --> BLIP4[BLIP<br/>zero-shot encoder]
+ KF4 --> EXT4[Extract metadata<br/>OCR/ASR/caption]
+ BLIP4 --> VDB4[(BLIP Vector Index)]
+ EXT4 --> ES4[(Elasticsearch)]
+ end
+
+ subgraph QRY4[" QUERY"]
+ Q4([Query VI/EN]) --> LLM4[LLM Query Optimizer<br/>paraphrase + expand]
+ LLM4 --> OPT_Q[Optimized Query]
+ OPT_Q --> STAGE1[Stage 1:<br/>Elasticsearch Filter]
+ ES4 -.-> STAGE1
+ STAGE1 --> CAND[~10K Candidates]
+ CAND --> STAGE2[Stage 2:<br/>BLIP Vector Rerank]
+ VDB4 -.-> STAGE2
+ STAGE2 --> STAGE3[Stage 3:<br/>Temporal Mechanism]
+ STAGE3 --> TOPK4[Top-K Final]
+ end

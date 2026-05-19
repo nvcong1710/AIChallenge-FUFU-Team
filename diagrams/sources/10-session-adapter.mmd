@@ -1,0 +1,33 @@
+sequenceDiagram
+ autonumber
+ actor Op as Operator
+ participant UI
+ participant Adapt as Session Adapter
+ participant Embed as Text Encoder
+ participant Search as Vector Search
+ participant VDB as Vector DB
+
+ Op->>UI: Gõ query "người phụ nữ áo đỏ"
+ UI->>Embed: encode(query)
+ Embed-->>UI: q₀
+ UI->>Adapt: init δ = 0
+ UI->>Search: search(q₀ + δ)
+ Search->>VDB: HNSW nearest
+ VDB-->>Search: top-20
+ Search-->>UI: 20 ảnh
+ UI->>Op: Hiển thị grid
+
+ Op->>UI: Click #3, #7 (áo cam), #12 (đàn ông)
+ UI->>Adapt: feedback(pos=[3], neg=[7,12])
+ Note over Adapt: L = -log σ(sim(q+δ, v_pos))<br/>+ Σ log σ(sim(q+δ, v_neg))<br/>δ ← δ - η·∇_δ L
+ Adapt-->>UI: δ updated
+
+ UI->>Search: search(q₀ + δ)
+ Search->>VDB: HNSW nearest
+ VDB-->>Search: top-20 (chuẩn hơn)
+ Search-->>UI: 20 ảnh mới
+ UI->>Op: Grid v2
+
+ UI->>Embed: explain(δ)
+ Embed-->>UI: "hệ thống đã hiểu: ưu tiên ĐỎ thuần, đối tượng nữ"
+ UI->>Op: Hiển thị giải thích

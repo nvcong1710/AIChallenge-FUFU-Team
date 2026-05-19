@@ -1,0 +1,45 @@
+flowchart TB
+ subgraph CLIENT[" Frontend (React)"]
+ UI12[Search UI]
+ SLIDER12[Axis weight sliders]
+ FEEDBACK[Feedback buttons]
+ TIMELINE[Timeline grid]
+ end
+
+ subgraph GW[" Spring Boot API Gateway"]
+ API[REST + WebSocket]
+ end
+
+ subgraph STORE[" Storage Layer"]
+ WEA[(Weaviate<br/>6-axis multi-vector<br/>+ synthetic queries)]
+ NEO12[(Neo4j<br/>Temporal Graph)]
+ ES12[(Elasticsearch<br/>OCR/ASR full-text)]
+ ADAPT[(Session Adapter Store<br/>in-memory δ)]
+ end
+
+ subgraph AISVC[" Python AI Service (gRPC)"]
+ BLIP_S[BLIP-2 + envit5<br/>translation bridging]
+ QWEN_S[Qwen-VL<br/>caption + OCR + grounding]
+ WHISP[Whisper-VN<br/>ASR]
+ CLIP_S[CLIP-Vi<br/>multilingual]
+ LAVI[LaVi-efficient<br/>reranker]
+ end
+
+ UI12 --> API
+ SLIDER12 --> API
+ FEEDBACK --> API
+ API --> WEA
+ API --> NEO12
+ API --> ES12
+ API --> ADAPT
+ API -.gRPC.-> AISVC
+
+ INGEST_PIPE[ Ingest Pipeline] --> AISVC
+ AISVC --> WEA
+ AISVC --> NEO12
+ AISVC --> ES12
+
+ style CLIENT fill:#e1f5ff
+ style GW fill:#fff4e1
+ style STORE fill:#f0e1ff
+ style AISVC fill:#e1ffe1

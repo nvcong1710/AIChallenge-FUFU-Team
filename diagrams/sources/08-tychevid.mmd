@@ -1,0 +1,19 @@
+flowchart LR
+ subgraph ING8[" INGEST"]
+ V8[Video] --> KF8[Keyframes]
+ KF8 --> EMB8[CLIP / BLIP-2<br/>Embedding]
+ EMB8 --> TUNED["Tuned HNSW Index<br/>efConstruction=400<br/>maxConnections=64<br/>efSearch=tuned"]
+ TUNED --> VDB8[(Vector DB)]
+ end
+
+ subgraph QRY8[" QUERY sub-100ms"]
+ Q8([Query]) --> CACHE{Embedding<br/>Cache hit?}
+ CACHE -->|Yes| QVEC8[Cached Vector]
+ CACHE -->|No| TENC8[Text Encoder]
+ TENC8 --> QVEC8
+ QVEC8 --> ANN[ANN Search<br/>HNSW]
+ VDB8 -.-> ANN
+ ANN --> TOPK8[Top-K]
+ TOPK8 --> PRELOAD[Pre-fetch<br/>thumbnails]
+ PRELOAD --> UI8[UI Grid]
+ end

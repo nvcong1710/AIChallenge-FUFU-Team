@@ -1,0 +1,23 @@
+flowchart TB
+ subgraph ING6[" INGEST + Enrichment"]
+ V6[Video] --> KF6[Keyframes]
+ KF6 --> EMB6[CLIP Embeddings]
+ KF6 --> META6[Metadata Extraction]
+ KF6 --> CTX6[Contextual News<br/>Extraction<br/>topic/entity/date]
+ EMB6 --> MILVUS[(Milvus<br/>Vector DB)]
+ META6 --> ES6[(Elasticsearch)]
+ CTX6 --> ES6
+ DSET[Dataset<br/>Expansion] -.-> KF6
+ end
+
+ subgraph QRY6[" QUERY"]
+ Q6([Multimodal Query]) --> P6A[Vector path]
+ Q6 --> P6B[Text + context path]
+ P6A --> MS[Milvus Search]
+ P6B --> ESS[ES Search]
+ MILVUS -.-> MS
+ ES6 -.-> ESS
+ MS --> CF[Context-aware Fusion<br/>topic/time match]
+ ESS --> CF
+ CF --> TOPK6[Top-K]
+ end

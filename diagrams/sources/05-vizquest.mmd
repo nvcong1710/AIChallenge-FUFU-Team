@@ -1,0 +1,25 @@
+flowchart TB
+ subgraph ING5[" INGEST (3 modality)"]
+ V5[Video] --> SP5[Split: frames + audio + on-screen text]
+ SP5 --> VE5[Visual Encoder<br/>CLIP-like]
+ SP5 --> AE5[Audio Encoder<br/>ASR + embed]
+ SP5 --> TE5[Text/OCR Encoder]
+ VE5 --> VI5[(Visual Index)]
+ AE5 --> AI5[(Audio Index)]
+ TE5 --> TI5[(Text Index)]
+ end
+
+ subgraph QRY5[" QUERY"]
+ Q5([Query]) --> PAR5[Parallel Search]
+ PAR5 --> SV5[Visual Search]
+ PAR5 --> SA5[Audio Search]
+ PAR5 --> ST5[Text Search]
+ VI5 -.-> SV5
+ AI5 -.-> SA5
+ TI5 -.-> ST5
+ SV5 --> R5[Rank Fusion<br/>RRF/Weighted]
+ SA5 --> R5
+ ST5 --> R5
+ R5 --> TM5[Temporal Modeling<br/>shot sequence]
+ TM5 --> TOPK5[Top-K Events]
+ end
