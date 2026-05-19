@@ -79,6 +79,13 @@ cp scripts/settings_remote.yaml config/settings.yaml
 chmod +x scripts/remote_setup.sh scripts/remote_run_all.sh
 ./scripts/remote_setup.sh                # ~5 phút
 
+# (Optional) Setup Kaggle API để tải MSR-VTT benchmark
+# 1) Lấy kaggle.json từ https://www.kaggle.com/settings → API → Create New Token
+# 2) Upload lên server: scp -P <port> kaggle.json root@<host>:/root/.kaggle/
+mkdir -p /root/.kaggle
+# Paste kaggle.json content vào /root/.kaggle/kaggle.json
+chmod 600 /root/.kaggle/kaggle.json
+
 # Run pipeline đầy đủ trong background:
 nohup ./scripts/remote_run_all.sh > /dev/null 2>&1 < /dev/null &
 disown
@@ -86,6 +93,12 @@ disown
 # Theo dõi log:
 tail -f /root/bd/run.log
 ```
+
+**MSR-VTT benchmark** (gold standard cho text→video retrieval):
+- 10K video clips × 20 captions = 200K query annotations
+- Đã thiết lập subset 200 videos × 3 queries = 600 test cases EN + 600 VN dịch
+- Recall@K so sánh trực tiếp được với literature (CLIP, BLIP-2 papers...)
+- Nếu skip Kaggle setup, hệ vẫn chạy custom VN test cases (37 query)
 
 ### 4. Pull results về local
 

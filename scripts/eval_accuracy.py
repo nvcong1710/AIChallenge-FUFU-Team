@@ -52,7 +52,13 @@ def main():
     cfg["models"]["device"] = "cpu"
     print(f"  Translation: {'ON' if enable_translation else 'OFF'}")
 
-    cases = json.loads((Path(__file__).resolve().parents[1] / "scripts" / "test_cases.json").read_text(encoding="utf-8"))
+    # Default: test_cases.json. Override với --cases <path> để dùng MSR-VTT etc.
+    cases_path = Path(__file__).resolve().parents[1] / "scripts" / "test_cases.json"
+    for i, arg in enumerate(sys.argv):
+        if arg == "--cases" and i + 1 < len(sys.argv):
+            cases_path = Path(sys.argv[i + 1])
+    print(f"  Test cases: {cases_path.name}")
+    cases = json.loads(cases_path.read_text(encoding="utf-8"))
     n = len(cases)
     print(f"Loading SearchEngine (CPU)...")
     engine = SearchEngine(cfg)

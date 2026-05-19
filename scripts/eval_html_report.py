@@ -154,7 +154,13 @@ def main():
     cfg["query_expansion"]["enable_translation"] = False
     cfg["models"]["device"] = "cpu"
 
-    cases = json.loads((ROOT / "scripts" / "test_cases.json").read_text(encoding="utf-8"))
+    # Default: test_cases.json. Override với --cases <path>
+    cases_path = ROOT / "scripts" / "test_cases.json"
+    for i, arg in enumerate(sys.argv):
+        if arg == "--cases" and i + 1 < len(sys.argv):
+            cases_path = Path(sys.argv[i + 1])
+    print(f"Test cases: {cases_path.name}")
+    cases = json.loads(cases_path.read_text(encoding="utf-8"))
     n = len(cases)
     print(f"Loading SearchEngine (CPU)...")
     engine = SearchEngine(cfg)

@@ -27,6 +27,13 @@ python scripts/download_more_data.py
 python scripts/download_vn_audio.py
 python scripts/download_more_data_v2.py
 python scripts/download_diverse_data.py
+# MSR-VTT (Kaggle gold-standard benchmark): cần ~/.kaggle/kaggle.json
+if [ -f ~/.kaggle/kaggle.json ]; then
+    pip install --quiet kaggle
+    python scripts/download_msrvtt.py || echo "  ⚠ MSR-VTT download fail, skip"
+else
+    echo "  ⚠ Kaggle API key chưa setup → skip MSR-VTT. Đặt kaggle.json vào ~/.kaggle/ rồi rerun."
+fi
 echo ""
 
 echo "===================== [STEP 4] Ingest test-data (full stack) ====================="
@@ -42,11 +49,28 @@ for QUERY in "chơi cờ vua" "thị trường chứng khoán" "Lê Quang Liêm"
 done
 
 echo "===================== [STEP 6] Eval accuracy ====================="
+echo "--- Custom VN test cases ---"
 python scripts/eval_accuracy.py 2>&1 | tail -40
 echo ""
+if [ -f scripts/test_cases_msrvtt.json ]; then
+    echo "--- MSR-VTT benchmark (gold standard, EN queries) ---"
+    python scripts/eval_accuracy.py --cases scripts/test_cases_msrvtt.json 2>&1 | tail -20
+    # Sinh VN version + eval
+    python scripts/translate_msrvtt_to_vn.py 2>&1 | tail -5 || true
+    if [ -f scripts/test_cases_msrvtt_vn.json ]; then
+        echo "--- MSR-VTT translated VN (cross-lingual test) ---"
+        python scripts/eval_accuracy.py --cases scripts/test_cases_msrvtt_vn.json 2>&1 | tail -20
+    fi
+fi
+echo ""
 
-echo "===================== [STEP 7] Generate HTML report ====================="
+echo "===================== [STEP 7] Generate HTML reports ====================="
 python scripts/eval_html_report.py
+if [ -f scripts/test_cases_msrvtt.json ]; then
+    mv eval_report.html eval_report_vn.html 2>/dev/null || true
+    python scripts/eval_html_report.py --cases scripts/test_cases_msrvtt.json
+    mv eval_report.html eval_report_msrvtt.html 2>/dev/null || true
+fi
 echo ""
 
 echo "===================== [STEP 8] Final stats ====================="
