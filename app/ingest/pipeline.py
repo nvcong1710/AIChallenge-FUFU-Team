@@ -1,7 +1,9 @@
-"""Ingest router — dispatch theo media_type."""
+"""Ingest router — dispatch theo media_type. Có signal handler → persist trước exit."""
 
 from __future__ import annotations
 
+import signal
+import sys
 from pathlib import Path
 from typing import Iterable
 
@@ -27,6 +29,27 @@ def run_ingest(paths: Iterable[Path], cfg: dict | None = None) -> None:
         ef_construct=int(cfg["retrieval"]["hnsw_ef_construct"]),
     )
 
+    # Signal handler: SIGTERM / SIGINT (Ctrl+C) → persist trước khi die
+    interrupted = {"flag": False}
+
+    def _handler(signum, frame):
+        if interrupted["flag"]:
+            print("\n⚠ Force exit (signal x2).", flush=True)
+            sys.exit(1)
+        interrupted["flag"] = True
+        print(f"\n⚠ Signal {signum} received → flush writer rồi exit gracefully...", flush=True)
+        try:
+            writer.persist()
+            writer.close()
+            print("✓ persisted.", flush=True)
+        except Exception as e:
+            print(f"✗ persist fail: {e}", flush=True)
+        sys.exit(0)
+
+    signal.signal(signal.SIGINT, _handler)
+    if hasattr(signal, "SIGTERM"):
+        signal.signal(signal.SIGTERM, _handler)
+
     try:
         for p in paths:
             p = Path(p)
@@ -41,6 +64,8 @@ def run_ingest(paths: Iterable[Path], cfg: dict | None = None) -> None:
                     ingest_audio(p, writer, cfg)
                 elif mt == MediaType.IMAGE:
                     ingest_image(p, encoder, writer, cfg)
+            except KeyboardInterrupt:
+                raise
             except Exception as e:
                 print(f"  ✗ lỗi với {p}: {e}")
                 import traceback

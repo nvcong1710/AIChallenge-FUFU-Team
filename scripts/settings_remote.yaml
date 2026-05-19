@@ -53,6 +53,7 @@ ingest:
     min_keyframes_per_shot: 1
     max_keyframes_per_shot: 12
     extract_audio_for_asr: true
+    chunk_size_frames: 16
     segment_length_sec: 5.0
     segment_stride_sec: 2.5
 

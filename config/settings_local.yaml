@@ -5,37 +5,32 @@ storage:
   thumbnail_dir: ./data/thumbnails
 
 models:
-  siglip: google/siglip2-large-patch16-384      # UPGRADE: Large (300M params, +10-15% accuracy)
+  siglip: google/siglip2-large-patch16-384      # phải match server (Large) để query encode dim đúng
   translator: facebook/nllb-200-distilled-600M
   paraphraser: Qwen/Qwen2.5-3B-Instruct
-  reranker: BAAI/bge-reranker-v2-m3             # NEW: cross-encoder rerank
-  device: cuda
+  reranker: BAAI/bge-reranker-v2-m3
+  device: cpu                                    # local: cpu only
 
 extractors:
-  enable_ocr: true                              # ON: EasyOCR py3.12 compat
-  enable_caption: true                          # ON: Qwen-VL-7B INT4 (~5GB VRAM)
-  enable_detection: true
-  enable_asr: true
-
+  enable_ocr: false                              # local không cần (data đã ingest)
+  enable_caption: false
+  enable_detection: false
+  enable_asr: false
   ocr_lang: vi
   ocr_min_confidence: 0.4
-
   caption_model: Qwen/Qwen2.5-VL-7B-Instruct
   caption_max_tokens: 96
   caption_quant_4bit: true
-  caption_prompt: "Mô tả ngắn gọn (1-2 câu) nội dung chính của ảnh bằng tiếng Việt: đối tượng nổi bật, hành động, bối cảnh, văn bản trên màn nếu có."
-
+  caption_prompt: ""
   detection_model: yolov8l-world.pt
   detection_min_confidence: 0.25
   detection_classes: null
-
   asr_model: vinai/PhoWhisper-medium
   asr_lang: vi
   asr_chunk_length_sec: 30
 
 ingest:
-  image:
-    max_size: 1024
+  image: {max_size: 1024}
   audio:
     target_sample_rate: 16000
     use_asr_as_segments: true
@@ -53,7 +48,6 @@ ingest:
     min_keyframes_per_shot: 1
     max_keyframes_per_shot: 12
     extract_audio_for_asr: true
-    chunk_size_frames: 16           # CHUNKED PERSIST: ghi FAISS+SQL mỗi 16 frame → kill midway chỉ mất 16 frame cuối
     segment_length_sec: 5.0
     segment_stride_sec: 2.5
 
@@ -62,21 +56,18 @@ retrieval:
   top_k_bm25_visual: 200
   top_k_bm25_asr: 200
   top_k_final: 20
-
-  enable_reranker: true                         # NEW: cross-encoder rerank top-N
-  rerank_top_k: 50                              # rerank top-50 → trả top_k_final
-
+  enable_reranker: false              # local: tắt rerank (BGE chậm trên CPU)
+  rerank_top_k: 50
   weights:
     dense: 0.4
     bm25_visual: 0.25
     bm25_asr: 0.5
-
   hnsw_m: 32
   hnsw_ef_construct: 200
   hnsw_ef_search: 128
 
 query_expansion:
-  enable_translation: true
-  enable_paraphrase: true
+  enable_translation: false           # local: tắt cho nhanh
+  enable_paraphrase: false
   num_paraphrases: 3
   paraphrase_max_tokens: 120
