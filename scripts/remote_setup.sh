@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Setup BetterDay-Tool env trên vast.ai instance.
+# Setup env trên vast.ai — bao gồm fix protobuf + pin transformers 4.50.
 set -e
 
 WORK=/root/bd
@@ -17,12 +17,20 @@ pip install --quiet --index-url https://download.pytorch.org/whl/cu121 \
     torch==2.4.0 torchvision==0.19.0
 
 echo ""
-echo "=== Install core deps (skip paddleocr — Python 3.12 không support) ==="
+echo "=== Install ML deps (transformers pinned 4.50, protobuf + tiktoken cần trước) ==="
 pip install --quiet \
-    transformers==4.46.3 \
+    'transformers==4.50.0' \
+    'huggingface_hub>=0.26' \
+    'tokenizers>=0.21' \
+    protobuf \
+    tiktoken \
     accelerate==1.0.1 \
     bitsandbytes==0.44.1 \
-    sentencepiece==0.2.0 \
+    sentencepiece==0.2.0
+
+echo ""
+echo "=== Install retrieval + serving + utility ==="
+pip install --quiet \
     faiss-cpu==1.9.0 \
     opencv-python-headless==4.10.0.84 \
     ffmpeg-python==0.2.0 \
@@ -35,7 +43,12 @@ pip install --quiet \
     pydantic==2.9.2 \
     ultralytics==8.3.20 \
     gtts \
-    huggingface_hub
+    soundfile \
+    librosa
+
+echo ""
+echo "=== Install EasyOCR (py3.12 compat, thay paddleocr) ==="
+pip install --quiet easyocr
 
 echo ""
 echo "=== Verify torch CUDA ==="

@@ -39,6 +39,17 @@ class SearchEngine:
             ef_search=int(cfg["retrieval"]["hnsw_ef_search"]),
         )
 
+        # Cross-encoder reranker (BGE-reranker-v2-m3) — optional, tăng precision
+        self.reranker = None
+        if cfg["retrieval"].get("enable_reranker", False):
+            try:
+                from .reranker import BGEReranker
+                model_name = cfg["models"].get("reranker", "BAAI/bge-reranker-v2-m3")
+                rr = BGEReranker(model_name, device=device)
+                self.reranker = rr if rr.enabled else None
+            except Exception as e:
+                print(f"[search] reranker init fail: {e}")
+
     # ---- query expansion ----
 
     def expand_query(self, query: str) -> dict:
@@ -147,6 +158,28 @@ class SearchEngine:
             weights=cfg_r["weights"],
         )
         timing["rerank_ms"] = (time.time() - t) * 1000
+
+        # Cross-encoder rerank top-N → trả top_k cuối cùng
+        rerank_top_n = int(cfg_r.get("rerank_top_k", 50))
+        if self.reranker and len(hits) > 1:
+            t = time.time()
+            candidate = hits[:rerank_top_n]
+            passages = []
+            for h in candidate:
+                parts = []
+                if h.best_frame:
+                    if h.best_frame.get("caption"):
+                        parts.append(h.best_frame["caption"])
+                    objs = h.best_frame.get("objects") or []
+                    if objs:
+                        labels = ", ".join(sorted({o["label"] for o in objs}))
+                        parts.append(f"objects: {labels}")
+                if h.best_asr and h.best_asr.get("text"):
+                    parts.append(h.best_asr["text"])
+                passages.append(" | ".join(parts) or "(no text)")
+            order = self.reranker.rerank(query, passages)
+            hits = [candidate[i] for i in order] + hits[rerank_top_n:]
+            timing["cross_rerank_ms"] = (time.time() - t) * 1000
 
         top_hits = hits[:top_k]
 

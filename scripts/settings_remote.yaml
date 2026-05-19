@@ -5,24 +5,25 @@ storage:
   thumbnail_dir: ./data/thumbnails
 
 models:
-  siglip: google/siglip2-base-patch16-384
+  siglip: google/siglip2-large-patch16-384
   translator: facebook/nllb-200-distilled-600M
   paraphraser: Qwen/Qwen2.5-3B-Instruct
+  reranker: BAAI/bge-reranker-v2-m3
   device: cuda
 
 extractors:
-  enable_ocr: false                  # paddleocr không support py3.12, tắt cho server vast
-  enable_caption: false              # user đã quyết tắt Qwen-VL caption
+  enable_ocr: true
+  enable_caption: true
   enable_detection: true
   enable_asr: true
 
   ocr_lang: vi
-  ocr_min_confidence: 0.5
+  ocr_min_confidence: 0.4
 
   caption_model: Qwen/Qwen2.5-VL-7B-Instruct
   caption_max_tokens: 96
   caption_quant_4bit: true
-  caption_prompt: "Mô tả ngắn gọn nội dung chính của ảnh bằng tiếng Việt."
+  caption_prompt: "Mô tả ngắn gọn (1-2 câu) nội dung chính của ảnh bằng tiếng Việt: đối tượng nổi bật, hành động, bối cảnh, văn bản trên màn nếu có."
 
   detection_model: yolov8l-world.pt
   detection_min_confidence: 0.25
@@ -60,10 +61,12 @@ retrieval:
   top_k_bm25_visual: 200
   top_k_bm25_asr: 200
   top_k_final: 20
+  enable_reranker: true
+  rerank_top_k: 50
   weights:
-    dense: 0.6
+    dense: 0.4
     bm25_visual: 0.25
-    bm25_asr: 0.15
+    bm25_asr: 0.5
   hnsw_m: 32
   hnsw_ef_construct: 200
   hnsw_ef_search: 128
