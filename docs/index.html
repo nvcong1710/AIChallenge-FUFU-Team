@@ -1,316 +1,402 @@
 <!DOCTYPE html>
 <html lang="vi" class="scroll-smooth">
+
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>FUFU Docs</title>
-<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📚</text></svg>">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FUFU Docs</title>
+  <link rel="icon"
+    href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📚</text></svg>">
 
-<!-- Tailwind (Play CDN) + typography plugin -->
-<script src="https://cdn.tailwindcss.com?plugins=typography"></script>
-<script>
-  tailwind.config = {
-    darkMode: "class",
-    theme: { extend: { colors: {
-      brand: { DEFAULT: "#0969da", dark: "#4493f8" }
-    } } }
-  };
-</script>
+  <!-- Tailwind (Play CDN) + typography plugin -->
+  <script src="https://cdn.tailwindcss.com?plugins=typography"></script>
+  <script>
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            brand: { DEFAULT: "#0969da", dark: "#4493f8" }
+          }
+        }
+      }
+    };
+  </script>
 
-<!-- Markdown + highlight + mermaid -->
-<script src="https://cdn.jsdelivr.net/npm/marked@12.0.2/marked.min.js"></script>
-<link id="hljs-light" rel="stylesheet" href="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.9.0/build/styles/github.min.css">
-<link id="hljs-dark" rel="stylesheet" href="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.9.0/build/styles/github-dark.min.css" disabled>
-<script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.9.0/build/highlight.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/mermaid@10.9.1/dist/mermaid.min.js"></script>
+  <!-- Markdown + highlight + mermaid -->
+  <script src="https://cdn.jsdelivr.net/npm/marked@12.0.2/marked.min.js"></script>
+  <link id="hljs-light" rel="stylesheet"
+    href="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.9.0/build/styles/github.min.css">
+  <link id="hljs-dark" rel="stylesheet"
+    href="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.9.0/build/styles/github-dark.min.css" disabled>
+  <script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.9.0/build/highlight.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10.9.1/dist/mermaid.min.js"></script>
 
-<style>
-  /* Glue tối thiểu cho HTML do marked sinh ra (Tailwind không với tới được) */
-  .prose pre { background: var(--code-bg) !important; color: inherit; border: 1px solid var(--border); }
-  .prose pre code { background: none; padding: 0; }
-  .prose :not(pre) > code::before, .prose :not(pre) > code::after { content: ""; }
-  .prose .mermaid { display: flex; justify-content: center; background: #fff; border: 1px solid var(--border);
-    border-radius: .5rem; padding: 14px; overflow-x: auto; }
-  .dark .prose .mermaid { background: #1c2128; }
-  .prose .anchor { opacity: 0; text-decoration: none; margin-left: .4rem; font-size: .8em; }
-  .prose h2:hover .anchor, .prose h3:hover .anchor { opacity: .5; }
-  .prose table { display: block; overflow-x: auto; }
-  :root { --code-bg:#f6f8fa; --border:#d1d9e0; }
-  .dark { --code-bg:#161b22; --border:#30363d; }
-  ::-webkit-scrollbar{width:10px;height:10px}
-  ::-webkit-scrollbar-thumb{background:var(--border);border-radius:6px}
-</style>
+  <style>
+    /* Glue tối thiểu cho HTML do marked sinh ra (Tailwind không với tới được) */
+    .prose pre {
+      background: var(--code-bg) !important;
+      color: inherit;
+      border: 1px solid var(--border);
+    }
+
+    .prose pre code {
+      background: none;
+      padding: 0;
+    }
+
+    .prose :not(pre)>code::before,
+    .prose :not(pre)>code::after {
+      content: "";
+    }
+
+    .prose .mermaid {
+      display: flex;
+      justify-content: center;
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: .5rem;
+      padding: 14px;
+      overflow-x: auto;
+    }
+
+    .dark .prose .mermaid {
+      background: #1c2128;
+    }
+
+    .prose .anchor {
+      opacity: 0;
+      text-decoration: none;
+      margin-left: .4rem;
+      font-size: .8em;
+    }
+
+    .prose h2:hover .anchor,
+    .prose h3:hover .anchor {
+      opacity: .5;
+    }
+
+    .prose table {
+      display: block;
+      overflow-x: auto;
+    }
+
+    :root {
+      --code-bg: #f6f8fa;
+      --border: #d1d9e0;
+    }
+
+    .dark {
+      --code-bg: #161b22;
+      --border: #30363d;
+    }
+
+    ::-webkit-scrollbar {
+      width: 10px;
+      height: 10px
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: var(--border);
+      border-radius: 6px
+    }
+  </style>
 </head>
 
 <body class="m-0 bg-white text-gray-800 dark:bg-[#0d1117] dark:text-gray-100 antialiased">
 
-<!-- ===== Topbar ===== -->
-<header class="fixed inset-x-0 top-0 z-50 flex h-14 items-center gap-3 border-b border-gray-200 bg-white/90 px-4 backdrop-blur dark:border-[#30363d] dark:bg-[#0d1117]/90">
-  <button id="burger" class="rounded-md border border-gray-300 px-2.5 py-1 text-lg dark:border-[#30363d] md:hidden" title="Menu">☰</button>
-  <a href="#/kien-thuc/00-INDEX.md" class="whitespace-nowrap text-base font-bold">📚 <span class="text-brand dark:text-brand-dark">FUFU</span> Docs<span class="hidden font-normal text-gray-500 sm:inline"> — tài liệu &amp; giáo trình</span></a>
-  <div class="relative ml-2 max-w-md flex-1">
-    <span class="pointer-events-none absolute left-2.5 top-1/2 -translate-y-1/2 text-xs opacity-60">🔍</span>
-    <input id="search" type="text" placeholder="Lọc tài liệu… (Ctrl+K)"
-      class="w-full rounded-lg border border-gray-300 bg-gray-50 py-1.5 pl-8 pr-3 text-sm outline-none focus:border-brand dark:border-[#30363d] dark:bg-[#161b22] dark:focus:border-brand-dark">
-  </div>
-  <div class="flex-1"></div>
-  <button id="theme-toggle" class="rounded-md border border-gray-300 px-2.5 py-1 text-sm hover:bg-gray-100 dark:border-[#30363d] dark:hover:bg-[#161b22]" title="Sáng/tối">🌙</button>
-  <a id="gh-link" href="#" target="_blank" rel="noopener" class="rounded-md border border-gray-300 px-2.5 py-1 text-sm no-underline hover:bg-gray-100 dark:border-[#30363d] dark:hover:bg-[#161b22]" title="Mở repo">⌂</a>
-</header>
+  <!-- ===== Topbar ===== -->
+  <header
+    class="fixed inset-x-0 top-0 z-50 flex h-14 items-center gap-3 border-b border-gray-200 bg-white/90 px-4 backdrop-blur dark:border-[#30363d] dark:bg-[#0d1117]/90">
+    <button id="burger" class="rounded-md border border-gray-300 px-2.5 py-1 text-lg dark:border-[#30363d] md:hidden"
+      title="Menu">☰</button>
+    <a href="#/kien-thuc/00-INDEX.md" class="whitespace-nowrap text-base font-bold">📚 <span
+        class="text-brand dark:text-brand-dark">FUFU</span> Docs<span
+        class="hidden font-normal text-gray-500 sm:inline"> — tài liệu &amp; giáo trình</span></a>
+    <div class="relative ml-2 max-w-md flex-1">
+      <span class="pointer-events-none absolute left-2.5 top-1/2 -translate-y-1/2 text-xs opacity-60">🔍</span>
+      <input id="search" type="text" placeholder="Lọc tài liệu… (Ctrl+K)"
+        class="w-full rounded-lg border border-gray-300 bg-gray-50 py-1.5 pl-8 pr-3 text-sm outline-none focus:border-brand dark:border-[#30363d] dark:bg-[#161b22] dark:focus:border-brand-dark">
+    </div>
+    <div class="flex-1"></div>
+    <button id="theme-toggle"
+      class="rounded-md border border-gray-300 px-2.5 py-1 text-sm hover:bg-gray-100 dark:border-[#30363d] dark:hover:bg-[#161b22]"
+      title="Sáng/tối">🌙</button>
+    <a id="gh-link" href="#" target="_blank" rel="noopener"
+      class="rounded-md border border-gray-300 px-2.5 py-1 text-sm no-underline hover:bg-gray-100 dark:border-[#30363d] dark:hover:bg-[#161b22]"
+      title="Mở repo">⌂</a>
+  </header>
 
-<!-- ===== Sidebar ===== -->
-<nav id="sidebar" class="fixed bottom-0 left-0 top-14 z-40 w-[300px] -translate-x-full overflow-y-auto border-r border-gray-200 bg-gray-50 pb-10 pt-2.5 transition-transform dark:border-[#30363d] dark:bg-[#161b22] md:translate-x-0"></nav>
-<div id="backdrop" class="fixed inset-0 z-30 hidden bg-black/35 md:hidden"></div>
+  <!-- ===== Sidebar ===== -->
+  <nav id="sidebar"
+    class="fixed bottom-0 left-0 top-14 z-40 w-[300px] -translate-x-full overflow-y-auto border-r border-gray-200 bg-gray-50 pb-10 pt-2.5 transition-transform dark:border-[#30363d] dark:bg-[#161b22] md:translate-x-0">
+  </nav>
+  <div id="backdrop" class="fixed inset-0 z-30 hidden bg-black/35 md:hidden"></div>
 
-<!-- ===== Main ===== -->
-<main class="px-5 pb-16 pt-[4.75rem] md:ml-[300px] md:px-8 2xl:mr-[240px]">
-  <div class="mx-auto max-w-[980px]">
-    <article id="content" class="prose prose-slate max-w-none dark:prose-invert prose-headings:scroll-mt-20 prose-h1:border-b prose-h1:border-gray-200 prose-h1:pb-2 prose-h2:border-b prose-h2:border-gray-200 prose-h2:pb-1.5 prose-a:text-brand prose-a:no-underline hover:prose-a:underline dark:prose-h1:border-[#30363d] dark:prose-h2:border-[#30363d] dark:prose-a:text-brand-dark prose-img:rounded-lg">
-      <p class="text-center text-gray-500">Đang tải…</p>
-    </article>
-    <nav id="pager" class="mt-12 flex gap-3 border-t border-gray-200 pt-5 dark:border-[#30363d]"></nav>
-  </div>
-</main>
+  <!-- ===== Main ===== -->
+  <main class="px-5 pb-16 pt-[4.75rem] md:ml-[300px] md:px-8 2xl:mr-[240px]">
+    <div class="mx-auto max-w-[980px]">
+      <article id="content"
+        class="prose prose-slate max-w-none dark:prose-invert prose-headings:scroll-mt-20 prose-h1:border-b prose-h1:border-gray-200 prose-h1:pb-2 prose-h2:border-b prose-h2:border-gray-200 prose-h2:pb-1.5 prose-a:text-brand prose-a:no-underline hover:prose-a:underline dark:prose-h1:border-[#30363d] dark:prose-h2:border-[#30363d] dark:prose-a:text-brand-dark prose-img:rounded-lg">
+        <p class="text-center text-gray-500">Đang tải…</p>
+      </article>
+      <nav id="pager" class="mt-12 flex gap-3 border-t border-gray-200 pt-5 dark:border-[#30363d]"></nav>
+    </div>
+  </main>
 
-<!-- ===== Right TOC ===== -->
-<aside id="toc" class="fixed bottom-0 right-0 top-14 hidden w-[240px] overflow-y-auto px-4 py-6 text-[12.5px] 2xl:block"></aside>
+  <!-- ===== Right TOC ===== -->
+  <aside id="toc"
+    class="fixed bottom-0 right-0 top-14 hidden w-[240px] overflow-y-auto px-4 py-6 text-[12.5px] 2xl:block"></aside>
 
-<script>
-/* ================= CẤU HÌNH ================= */
-const GITHUB_REPO_URL = "https://github.com/YOUR_USER/YOUR_REPO"; // ← sửa khi deploy
+  <script>
+    /* ================= CẤU HÌNH ================= */
+    const GITHUB_REPO_URL = "https://github.com/YOUR_USER/YOUR_REPO"; // ← sửa khi deploy
 
-const SECTIONS = [
-  { title: "📌 Tài liệu dự án", items: [
-    { path: "du-an/PROJECT-CONTEXT.md",     label: "Project Context — hệ thống FUFU" },
-    { path: "du-an/RESEARCH-PLAN.md",       label: "Research Plan — menu ý tưởng" },
-    { path: "du-an/README-V2.md",           label: "README v2" },
-    { path: "du-an/HARDWARE.md",            label: "Hardware profile" },
-    { path: "du-an/KIEN-TRUC-MERMAID.md",   label: "Kiến trúc (diagram)" },
-    { path: "du-an/BAO-CAO-TONG-HOP.md",    label: "Báo cáo tổng hợp" },
-    { path: "du-an/CHECKLIST-GIAI-PHAP.md", label: "Checklist giải pháp" },
-    { path: "du-an/VAST_AI_GUIDE.md",       label: "Vast.ai guide" },
-  ]},
-  { title: "🗺 Giáo trình — bắt đầu", items: [
-    { path: "kien-thuc/00-INDEX.md", label: "Lộ trình học (đọc trước)" },
-  ]},
-  { title: "Phần I — Nền tảng Deep Learning", items: [
-    { path: "kien-thuc/01-tu-ml-co-dien-sang-neural-network.md", num: "01", label: "Từ ML cổ điển sang Neural Network" },
-    { path: "kien-thuc/02-huan-luyen-mang-neural.md",            num: "02", label: "Huấn luyện mạng neural" },
-    { path: "kien-thuc/03-cnn-xu-ly-anh.md",                     num: "03", label: "CNN — xử lý ảnh" },
-    { path: "kien-thuc/04-attention-va-transformer.md",          num: "04", label: "Attention & Transformer" },
-    { path: "kien-thuc/05-tokenization-bert-gpt.md",             num: "05", label: "Tokenization, BERT vs GPT" },
-    { path: "kien-thuc/06-vision-transformer.md",                num: "06", label: "Vision Transformer (ViT)" },
-  ]},
-  { title: "Phần II — Các model trong FUFU", items: [
-    { path: "kien-thuc/07-contrastive-learning-clip-siglip.md",  num: "07", label: "CLIP/SigLIP — trái tim FUFU" },
-    { path: "kien-thuc/08-vlm-qwen-vl-quantization.md",          num: "08", label: "VLM: Qwen-VL & quantization" },
-    { path: "kien-thuc/09-asr-phowhisper.md",                    num: "09", label: "ASR: PhoWhisper" },
-    { path: "kien-thuc/10-ocr-va-open-vocab-detection.md",       num: "10", label: "OCR & open-vocab detection" },
-    { path: "kien-thuc/11-llm-sinh-van-ban-dich-paraphrase.md",  num: "11", label: "LLM: dịch & paraphrase" },
-    { path: "kien-thuc/12-bi-encoder-cross-encoder-rerank.md",   num: "12", label: "Bi-encoder vs Cross-encoder" },
-  ]},
-  { title: "Phần III — Hệ retrieval", items: [
-    { path: "kien-thuc/13-vector-search-faiss-hnsw.md",          num: "13", label: "Vector search: FAISS & HNSW" },
-    { path: "kien-thuc/14-bm25-hybrid-fusion.md",                num: "14", label: "BM25 & hybrid fusion" },
-    { path: "kien-thuc/15-pipeline-fufu-end-to-end.md",          num: "15", label: "Pipeline FUFU end-to-end" },
-  ]},
-  { title: "Phần IV — Kỹ năng thực chiến", items: [
-    { path: "kien-thuc/16-fine-tuning-lora-peft.md",             num: "16", label: "Fine-tuning: LoRA/PEFT" },
-    { path: "kien-thuc/17-hyperparameter-tuning.md",             num: "17", label: "Chỉnh siêu tham số" },
-    { path: "kien-thuc/18-ensemble-fusion.md",                   num: "18", label: "Ensemble & fusion" },
-    { path: "kien-thuc/19-danh-gia-retrieval-eval.md",           num: "19", label: "Đánh giá retrieval" },
-  ]},
-];
+    const SECTIONS = [
+      {
+        title: "🗺 Giáo trình — bắt đầu", items: [
+          { path: "kien-thuc/00-INDEX.md", label: "Lộ trình học (đọc trước)" },
+        ]
+      },
+      {
+        title: "Phần I — Nền tảng Deep Learning", items: [
+          { path: "kien-thuc/01-tu-ml-co-dien-sang-neural-network.md", num: "01", label: "Từ ML cổ điển sang Neural Network" },
+          { path: "kien-thuc/02-huan-luyen-mang-neural.md", num: "02", label: "Huấn luyện mạng neural" },
+          { path: "kien-thuc/03-cnn-xu-ly-anh.md", num: "03", label: "CNN — xử lý ảnh" },
+          { path: "kien-thuc/04-attention-va-transformer.md", num: "04", label: "Attention & Transformer" },
+          { path: "kien-thuc/05-tokenization-bert-gpt.md", num: "05", label: "Tokenization, BERT vs GPT" },
+          { path: "kien-thuc/06-vision-transformer.md", num: "06", label: "Vision Transformer (ViT)" },
+        ]
+      },
+      {
+        title: "Phần II — Các model trong FUFU", items: [
+          { path: "kien-thuc/07-contrastive-learning-clip-siglip.md", num: "07", label: "CLIP/SigLIP — trái tim FUFU" },
+          { path: "kien-thuc/08-vlm-qwen-vl-quantization.md", num: "08", label: "VLM: Qwen-VL & quantization" },
+          { path: "kien-thuc/09-asr-phowhisper.md", num: "09", label: "ASR: PhoWhisper" },
+          { path: "kien-thuc/10-ocr-va-open-vocab-detection.md", num: "10", label: "OCR & open-vocab detection" },
+          { path: "kien-thuc/11-llm-sinh-van-ban-dich-paraphrase.md", num: "11", label: "LLM: dịch & paraphrase" },
+          { path: "kien-thuc/12-bi-encoder-cross-encoder-rerank.md", num: "12", label: "Bi-encoder vs Cross-encoder" },
+        ]
+      },
+      {
+        title: "Phần III — Hệ retrieval", items: [
+          { path: "kien-thuc/13-vector-search-faiss-hnsw.md", num: "13", label: "Vector search: FAISS & HNSW" },
+          { path: "kien-thuc/14-bm25-hybrid-fusion.md", num: "14", label: "BM25 & hybrid fusion" },
+          { path: "kien-thuc/15-pipeline-fufu-end-to-end.md", num: "15", label: "Pipeline FUFU end-to-end" },
+        ]
+      },
+      {
+        title: "Phần IV — Kỹ năng thực chiến", items: [
+          { path: "kien-thuc/16-fine-tuning-lora-peft.md", num: "16", label: "Fine-tuning: LoRA/PEFT" },
+          { path: "kien-thuc/17-hyperparameter-tuning.md", num: "17", label: "Chỉnh siêu tham số" },
+          { path: "kien-thuc/18-ensemble-fusion.md", num: "18", label: "Ensemble & fusion" },
+          { path: "kien-thuc/19-danh-gia-retrieval-eval.md", num: "19", label: "Đánh giá retrieval" },
+        ]
+      },
+      {
+        title: "📌 Tài liệu dự án", items: [
+          { path: "du-an/PROJECT-CONTEXT.md", label: "Project Context — hệ thống FUFU" },
+          { path: "du-an/RESEARCH-PLAN.md", label: "Research Plan — menu ý tưởng" },
+          { path: "du-an/README-V2.md", label: "README v2" },
+          { path: "du-an/HARDWARE.md", label: "Hardware profile" },
+          { path: "du-an/KIEN-TRUC-MERMAID.md", label: "Kiến trúc (diagram)" },
+          { path: "du-an/BAO-CAO-TONG-HOP.md", label: "Báo cáo tổng hợp" },
+          { path: "du-an/CHECKLIST-GIAI-PHAP.md", label: "Checklist giải pháp" },
+          { path: "du-an/VAST_AI_GUIDE.md", label: "Vast.ai guide" },
+        ]
+      },
+    ];
 
-/* ================= STATE ================= */
-const FLAT = SECTIONS.flatMap(s => s.items);
-const byBasename = {};
-FLAT.forEach(it => { byBasename[it.path.split("/").pop().toLowerCase()] = it; });
-const visited = new Set(JSON.parse(localStorage.getItem("fufu-visited") || "[]"));
-const $ = id => document.getElementById(id);
+    /* ================= STATE ================= */
+    const FLAT = SECTIONS.flatMap(s => s.items);
+    const byBasename = {};
+    FLAT.forEach(it => { byBasename[it.path.split("/").pop().toLowerCase()] = it; });
+    const visited = new Set(JSON.parse(localStorage.getItem("fufu-visited") || "[]"));
+    const $ = id => document.getElementById(id);
 
-/* ================= THEME ================= */
-function applyTheme(t){
-  const dark = t === "dark";
-  document.documentElement.classList.toggle("dark", dark);
-  $("theme-toggle").textContent = dark ? "☀️" : "🌙";
-  $("hljs-light").disabled = dark;
-  $("hljs-dark").disabled  = !dark;
-  localStorage.setItem("fufu-theme", t);
-  if (window.mermaid) mermaid.initialize({ startOnLoad:false, securityLevel:"loose", theme: dark ? "dark" : "neutral" });
-}
-applyTheme(localStorage.getItem("fufu-theme") ||
-  (matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light"));
-$("theme-toggle").onclick = () =>
-  applyTheme(document.documentElement.classList.contains("dark") ? "light" : "dark");
-
-/* ================= SIDEBAR ================= */
-const ITEM_BASE = "flex items-baseline gap-2 border-l-[3px] py-1.5 pl-[18px] pr-3.5 text-[13.5px] no-underline";
-const ITEM_OFF  = "border-transparent text-gray-700 hover:bg-gray-500/10 dark:text-gray-300";
-const ITEM_ON   = "border-brand bg-brand/10 font-semibold text-brand dark:border-brand-dark dark:bg-brand-dark/15 dark:text-brand-dark";
-
-function renderSidebar(filter = ""){
-  const f = filter.trim().toLowerCase();
-  const cur = currentPath();
-  let html = "";
-  for (const sec of SECTIONS){
-    const items = sec.items.filter(it =>
-      !f || it.label.toLowerCase().includes(f) || it.path.toLowerCase().includes(f));
-    if (!items.length) continue;
-    html += `<h3 class="mx-3.5 mb-1.5 mt-4 text-[11px] font-semibold uppercase tracking-wide text-gray-500">${sec.title}</h3>`;
-    for (const it of items){
-      const active = it.path === cur;
-      const check = visited.has(it.path)
-        ? ` <span class="text-[11px] text-green-500">✓</span>` : "";
-      html += `<a href="#/${it.path}" class="${ITEM_BASE} ${active ? ITEM_ON : ITEM_OFF}">` +
-              `<span class="min-w-[18px] text-[11.5px] tabular-nums text-gray-500">${it.num || "•"}</span>` +
-              `<span class="flex-1">${it.label}${check}</span></a>`;
+    /* ================= THEME ================= */
+    function applyTheme(t) {
+      const dark = t === "dark";
+      document.documentElement.classList.toggle("dark", dark);
+      $("theme-toggle").textContent = dark ? "☀️" : "🌙";
+      $("hljs-light").disabled = dark;
+      $("hljs-dark").disabled = !dark;
+      localStorage.setItem("fufu-theme", t);
+      if (window.mermaid) mermaid.initialize({ startOnLoad: false, securityLevel: "loose", theme: dark ? "dark" : "neutral" });
     }
-  }
-  $("sidebar").innerHTML = html || `<div class="px-[18px] py-2 text-sm italic text-gray-500">Không có tài liệu khớp.</div>`;
-}
-$("search").addEventListener("input", e => renderSidebar(e.target.value));
-document.addEventListener("keydown", e => {
-  if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "k"){ e.preventDefault(); $("search").focus(); }
-});
+    applyTheme(localStorage.getItem("fufu-theme") ||
+      (matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light"));
+    $("theme-toggle").onclick = () =>
+      applyTheme(document.documentElement.classList.contains("dark") ? "light" : "dark");
 
-/* Mobile drawer */
-const openSidebar  = () => { $("sidebar").classList.remove("-translate-x-full"); $("backdrop").classList.remove("hidden"); };
-const closeSidebar = () => { if (innerWidth < 768){ $("sidebar").classList.add("-translate-x-full"); $("backdrop").classList.add("hidden"); } };
-$("burger").onclick  = () => $("sidebar").classList.contains("-translate-x-full") ? openSidebar() : closeSidebar();
-$("backdrop").onclick = closeSidebar;
-$("sidebar").addEventListener("click", e => { if (e.target.closest("a")) closeSidebar(); });
+    /* ================= SIDEBAR ================= */
+    const ITEM_BASE = "flex items-baseline gap-2 border-l-[3px] py-1.5 pl-[18px] pr-3.5 text-[13.5px] no-underline";
+    const ITEM_OFF = "border-transparent text-gray-700 hover:bg-gray-500/10 dark:text-gray-300";
+    const ITEM_ON = "border-brand bg-brand/10 font-semibold text-brand dark:border-brand-dark dark:bg-brand-dark/15 dark:text-brand-dark";
 
-/* ================= MARKDOWN ================= */
-const escapeHtml = s => s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
-marked.use({
-  gfm: true,
-  renderer: {
-    code(code, infostring){
-      if ((infostring || "").trim() === "mermaid")
-        return `<div class="mermaid">${escapeHtml(code)}</div>`;
-      return false;
+    function renderSidebar(filter = "") {
+      const f = filter.trim().toLowerCase();
+      const cur = currentPath();
+      let html = "";
+      for (const sec of SECTIONS) {
+        const items = sec.items.filter(it =>
+          !f || it.label.toLowerCase().includes(f) || it.path.toLowerCase().includes(f));
+        if (!items.length) continue;
+        html += `<h3 class="mx-3.5 mb-1.5 mt-4 text-[11px] font-semibold uppercase tracking-wide text-gray-500">${sec.title}</h3>`;
+        for (const it of items) {
+          const active = it.path === cur;
+          const check = visited.has(it.path)
+            ? ` <span class="text-[11px] text-green-500">✓</span>` : "";
+          html += `<a href="#/${it.path}" class="${ITEM_BASE} ${active ? ITEM_ON : ITEM_OFF}">` +
+            `<span class="min-w-[18px] text-[11.5px] tabular-nums text-gray-500">${it.num || "•"}</span>` +
+            `<span class="flex-1">${it.label}${check}</span></a>`;
+        }
+      }
+      $("sidebar").innerHTML = html || `<div class="px-[18px] py-2 text-sm italic text-gray-500">Không có tài liệu khớp.</div>`;
     }
-  }
-});
+    $("search").addEventListener("input", e => renderSidebar(e.target.value));
+    document.addEventListener("keydown", e => {
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "k") { e.preventDefault(); $("search").focus(); }
+    });
 
-function slugify(text){
-  return text.toLowerCase().trim()
-    .normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/đ/g, "d")
-    .replace(/[^a-z0-9\s-]/g, "").replace(/\s+/g, "-");
-}
+    /* Mobile drawer */
+    const openSidebar = () => { $("sidebar").classList.remove("-translate-x-full"); $("backdrop").classList.remove("hidden"); };
+    const closeSidebar = () => { if (innerWidth < 768) { $("sidebar").classList.add("-translate-x-full"); $("backdrop").classList.add("hidden"); } };
+    $("burger").onclick = () => $("sidebar").classList.contains("-translate-x-full") ? openSidebar() : closeSidebar();
+    $("backdrop").onclick = closeSidebar;
+    $("sidebar").addEventListener("click", e => { if (e.target.closest("a")) closeSidebar(); });
 
-function currentPath(){
-  const h = location.hash.replace(/^#\//, "");
-  const p = decodeURIComponent(h.split("#")[0]);
-  return FLAT.some(it => it.path === p) ? p : "kien-thuc/00-INDEX.md";
-}
+    /* ================= MARKDOWN ================= */
+    const escapeHtml = s => s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+    marked.use({
+      gfm: true,
+      renderer: {
+        code(code, infostring) {
+          if ((infostring || "").trim() === "mermaid")
+            return `<div class="mermaid">${escapeHtml(code)}</div>`;
+          return false;
+        }
+      }
+    });
 
-async function loadDoc(){
-  const path = currentPath();
-  const frag = (location.hash.split("#")[2] || "");
-  const content = $("content");
-  content.innerHTML = `<p class="text-center text-gray-500">Đang tải ${path}…</p>`;
+    function slugify(text) {
+      return text.toLowerCase().trim()
+        .normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/đ/g, "d")
+        .replace(/[^a-z0-9\s-]/g, "").replace(/\s+/g, "-");
+    }
 
-  let md;
-  try {
-    const res = await fetch(encodeURI(path), { cache: "no-cache" });
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    md = await res.text();
-  } catch (err) {
-    content.innerHTML = `<div class="rounded-lg border border-red-500/60 bg-red-500/5 p-5">
+    function currentPath() {
+      const h = location.hash.replace(/^#\//, "");
+      const p = decodeURIComponent(h.split("#")[0]);
+      return FLAT.some(it => it.path === p) ? p : "kien-thuc/00-INDEX.md";
+    }
+
+    async function loadDoc() {
+      const path = currentPath();
+      const frag = (location.hash.split("#")[2] || "");
+      const content = $("content");
+      content.innerHTML = `<p class="text-center text-gray-500">Đang tải ${path}…</p>`;
+
+      let md;
+      try {
+        const res = await fetch(encodeURI(path), { cache: "no-cache" });
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        md = await res.text();
+      } catch (err) {
+        content.innerHTML = `<div class="rounded-lg border border-red-500/60 bg-red-500/5 p-5">
       <b>Không tải được <code>${path}</code></b> (${err.message}).<br><br>
       Nếu đang mở bằng <code>file://</code>, trình duyệt chặn fetch. Chạy server tĩnh:
       <pre>cd docs
 python -m http.server 8000</pre> rồi mở <a class="text-brand" href="http://localhost:8000">http://localhost:8000</a>.</div>`;
-    return;
-  }
+        return;
+      }
 
-  content.innerHTML = marked.parse(md);
+      content.innerHTML = marked.parse(md);
 
-  /* Heading ids + anchor + TOC */
-  const tocItems = [];
-  content.querySelectorAll("h2, h3").forEach(h => {
-    const id = slugify(h.textContent);
-    h.id = id;
-    tocItems.push({ id, text: h.textContent, level: h.tagName === "H2" ? 2 : 3 });
-    const a = document.createElement("a");
-    a.className = "anchor"; a.href = `#/${path}#${id}`; a.textContent = "#";
-    h.appendChild(a);
-  });
-  $("toc").innerHTML = tocItems.length
-    ? `<div class="mb-2 text-[11px] font-semibold uppercase text-gray-500">Trong trang này</div>` +
-      tocItems.map(t => `<a class="block border-l-2 border-gray-200 py-[3px] text-gray-500 no-underline hover:text-brand dark:border-[#30363d] dark:hover:text-brand-dark ${t.level===3?"pl-[22px]":"pl-2.5"}" href="#/${path}#${t.id}">${t.text}</a>`).join("")
-    : "";
+      /* Heading ids + anchor + TOC */
+      const tocItems = [];
+      content.querySelectorAll("h2, h3").forEach(h => {
+        const id = slugify(h.textContent);
+        h.id = id;
+        tocItems.push({ id, text: h.textContent, level: h.tagName === "H2" ? 2 : 3 });
+        const a = document.createElement("a");
+        a.className = "anchor"; a.href = `#/${path}#${id}`; a.textContent = "#";
+        h.appendChild(a);
+      });
+      $("toc").innerHTML = tocItems.length
+        ? `<div class="mb-2 text-[11px] font-semibold uppercase text-gray-500">Trong trang này</div>` +
+        tocItems.map(t => `<a class="block border-l-2 border-gray-200 py-[3px] text-gray-500 no-underline hover:text-brand dark:border-[#30363d] dark:hover:text-brand-dark ${t.level === 3 ? "pl-[22px]" : "pl-2.5"}" href="#/${path}#${t.id}">${t.text}</a>`).join("")
+        : "";
 
-  /* Rewrite .md links → internal; file ngoài → GitHub */
-  content.querySelectorAll("a[href]").forEach(a => {
-    const href = a.getAttribute("href");
-    if (/^(https?:|mailto:|#)/.test(href)) return;
-    const clean = href.split("#")[0];
-    const hfrag = href.includes("#") ? "#" + href.split("#")[1] : "";
-    if (clean.toLowerCase().endsWith(".md")){
-      const target = byBasename[clean.split("/").pop().toLowerCase()];
-      if (target){ a.setAttribute("href", `#/${target.path}${hfrag}`); return; }
+      /* Rewrite .md links → internal; file ngoài → GitHub */
+      content.querySelectorAll("a[href]").forEach(a => {
+        const href = a.getAttribute("href");
+        if (/^(https?:|mailto:|#)/.test(href)) return;
+        const clean = href.split("#")[0];
+        const hfrag = href.includes("#") ? "#" + href.split("#")[1] : "";
+        if (clean.toLowerCase().endsWith(".md")) {
+          const target = byBasename[clean.split("/").pop().toLowerCase()];
+          if (target) { a.setAttribute("href", `#/${target.path}${hfrag}`); return; }
+        }
+        if (GITHUB_REPO_URL.includes("github.com") && !GITHUB_REPO_URL.includes("YOUR_USER")) {
+          a.setAttribute("href", `${GITHUB_REPO_URL}/blob/main/${clean.replace(/^(\.\.\/)+/, "")}`);
+          a.setAttribute("target", "_blank");
+        }
+      });
+
+      /* Highlight + mermaid */
+      content.querySelectorAll("pre code").forEach(el => hljs.highlightElement(el));
+      try { await mermaid.run({ nodes: content.querySelectorAll(".mermaid") }); } catch (e) { }
+
+      /* Pager */
+      const idx = FLAT.findIndex(it => it.path === path);
+      const prev = FLAT[idx - 1], next = FLAT[idx + 1];
+      const PG = "flex-1 rounded-lg border border-gray-200 p-3 no-underline hover:border-brand dark:border-[#30363d] dark:hover:border-brand-dark";
+      $("pager").innerHTML =
+        (prev ? `<a class="${PG}" href="#/${prev.path}"><div class="text-[11.5px] text-gray-500">← Trước</div><div class="text-sm font-semibold text-brand dark:text-brand-dark">${prev.label}</div></a>` : `<span class="flex-1"></span>`) +
+        (next ? `<a class="${PG} text-right" href="#/${next.path}"><div class="text-[11.5px] text-gray-500">Sau →</div><div class="text-sm font-semibold text-brand dark:text-brand-dark">${next.label}</div></a>` : `<span class="flex-1"></span>`);
+
+      /* Visited + title + sidebar */
+      visited.add(path);
+      localStorage.setItem("fufu-visited", JSON.stringify([...visited]));
+      document.title = (FLAT[idx] ? FLAT[idx].label : "FUFU") + " · FUFU Docs";
+      renderSidebar($("search").value);
+      const act = document.querySelector('#sidebar a[href="#/' + path + '"]');
+      if (act) act.scrollIntoView({ block: "nearest" });
+
+      if (frag) { const el = document.getElementById(frag); if (el) el.scrollIntoView(); }
+      else window.scrollTo(0, 0);
+
+      setupTocSpy();
     }
-    if (GITHUB_REPO_URL.includes("github.com") && !GITHUB_REPO_URL.includes("YOUR_USER")){
-      a.setAttribute("href", `${GITHUB_REPO_URL}/blob/main/${clean.replace(/^(\.\.\/)+/, "")}`);
-      a.setAttribute("target", "_blank");
+
+    function setupTocSpy() {
+      const links = [...document.querySelectorAll("#toc a")];
+      if (!links.length) return;
+      const heads = links.map(a => document.getElementById(a.getAttribute("href").split("#")[2])).filter(Boolean);
+      const onScroll = () => {
+        let cur = heads[0];
+        for (const h of heads) if (h.getBoundingClientRect().top < 90) cur = h;
+        links.forEach(a => {
+          const on = cur && a.getAttribute("href").endsWith("#" + cur.id);
+          a.classList.toggle("text-brand", on);
+          a.classList.toggle("dark:text-brand-dark", on);
+          a.classList.toggle("border-brand", on);
+        });
+      };
+      window.removeEventListener("scroll", window.__tocSpy || (() => { }));
+      window.__tocSpy = onScroll;
+      window.addEventListener("scroll", onScroll, { passive: true });
     }
-  });
 
-  /* Highlight + mermaid */
-  content.querySelectorAll("pre code").forEach(el => hljs.highlightElement(el));
-  try { await mermaid.run({ nodes: content.querySelectorAll(".mermaid") }); } catch(e){}
+    /* GitHub link */
+    if (!GITHUB_REPO_URL.includes("YOUR_USER")) $("gh-link").href = GITHUB_REPO_URL;
+    else $("gh-link").style.display = "none";
 
-  /* Pager */
-  const idx = FLAT.findIndex(it => it.path === path);
-  const prev = FLAT[idx - 1], next = FLAT[idx + 1];
-  const PG = "flex-1 rounded-lg border border-gray-200 p-3 no-underline hover:border-brand dark:border-[#30363d] dark:hover:border-brand-dark";
-  $("pager").innerHTML =
-    (prev ? `<a class="${PG}" href="#/${prev.path}"><div class="text-[11.5px] text-gray-500">← Trước</div><div class="text-sm font-semibold text-brand dark:text-brand-dark">${prev.label}</div></a>` : `<span class="flex-1"></span>`) +
-    (next ? `<a class="${PG} text-right" href="#/${next.path}"><div class="text-[11.5px] text-gray-500">Sau →</div><div class="text-sm font-semibold text-brand dark:text-brand-dark">${next.label}</div></a>` : `<span class="flex-1"></span>`);
-
-  /* Visited + title + sidebar */
-  visited.add(path);
-  localStorage.setItem("fufu-visited", JSON.stringify([...visited]));
-  document.title = (FLAT[idx] ? FLAT[idx].label : "FUFU") + " · FUFU Docs";
-  renderSidebar($("search").value);
-  const act = document.querySelector('#sidebar a[href="#/'+path+'"]');
-  if (act) act.scrollIntoView({ block: "nearest" });
-
-  if (frag){ const el = document.getElementById(frag); if (el) el.scrollIntoView(); }
-  else window.scrollTo(0, 0);
-
-  setupTocSpy();
-}
-
-function setupTocSpy(){
-  const links = [...document.querySelectorAll("#toc a")];
-  if (!links.length) return;
-  const heads = links.map(a => document.getElementById(a.getAttribute("href").split("#")[2])).filter(Boolean);
-  const onScroll = () => {
-    let cur = heads[0];
-    for (const h of heads) if (h.getBoundingClientRect().top < 90) cur = h;
-    links.forEach(a => {
-      const on = cur && a.getAttribute("href").endsWith("#" + cur.id);
-      a.classList.toggle("text-brand", on);
-      a.classList.toggle("dark:text-brand-dark", on);
-      a.classList.toggle("border-brand", on);
-    });
-  };
-  window.removeEventListener("scroll", window.__tocSpy || (()=>{}));
-  window.__tocSpy = onScroll;
-  window.addEventListener("scroll", onScroll, { passive: true });
-}
-
-/* GitHub link */
-if (!GITHUB_REPO_URL.includes("YOUR_USER")) $("gh-link").href = GITHUB_REPO_URL;
-else $("gh-link").style.display = "none";
-
-window.addEventListener("hashchange", loadDoc);
-if (!location.hash) location.hash = "#/kien-thuc/00-INDEX.md";
-loadDoc();
-</script>
+    window.addEventListener("hashchange", loadDoc);
+    if (!location.hash) location.hash = "#/kien-thuc/00-INDEX.md";
+    loadDoc();
+  </script>
 </body>
+
 </html>
