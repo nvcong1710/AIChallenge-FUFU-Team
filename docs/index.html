@@ -1,166 +1,94 @@
 <!DOCTYPE html>
-<html lang="vi">
+<html lang="vi" class="scroll-smooth">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>FUFU Docs</title>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📚</text></svg>">
-<!-- Markdown + code highlight + mermaid (CDN) -->
+
+<!-- Tailwind (Play CDN) + typography plugin -->
+<script src="https://cdn.tailwindcss.com?plugins=typography"></script>
+<script>
+  tailwind.config = {
+    darkMode: "class",
+    theme: { extend: { colors: {
+      brand: { DEFAULT: "#0969da", dark: "#4493f8" }
+    } } }
+  };
+</script>
+
+<!-- Markdown + highlight + mermaid -->
 <script src="https://cdn.jsdelivr.net/npm/marked@12.0.2/marked.min.js"></script>
 <link id="hljs-light" rel="stylesheet" href="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.9.0/build/styles/github.min.css">
 <link id="hljs-dark" rel="stylesheet" href="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.9.0/build/styles/github-dark.min.css" disabled>
 <script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.9.0/build/highlight.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/mermaid@10.9.1/dist/mermaid.min.js"></script>
+
 <style>
-:root{
-  --bg:#ffffff; --bg2:#f6f8fa; --fg:#1f2328; --fg2:#656d76; --border:#d1d9e0;
-  --accent:#0969da; --accent-bg:#ddf4ff; --sidebar-w:300px; --toc-w:220px;
-  --code-bg:#f6f8fa; --mark:#fff8c5;
-}
-[data-theme="dark"]{
-  --bg:#0d1117; --bg2:#161b22; --fg:#e6edf3; --fg2:#8d96a0; --border:#30363d;
-  --accent:#4493f8; --accent-bg:#121d2f; --code-bg:#161b22; --mark:#4d3800;
-}
-*{box-sizing:border-box}
-html{scroll-behavior:smooth}
-body{margin:0;font-family:-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;background:var(--bg);color:var(--fg);line-height:1.65}
-
-/* ===== Topbar ===== */
-.topbar{position:fixed;top:0;left:0;right:0;height:52px;display:flex;align-items:center;gap:10px;
-  padding:0 14px;background:var(--bg);border-bottom:1px solid var(--border);z-index:50}
-.topbar .burger{display:none;background:none;border:1px solid var(--border);border-radius:6px;
-  color:var(--fg);font-size:16px;padding:4px 10px;cursor:pointer}
-.brand{font-weight:700;font-size:16px;text-decoration:none;color:var(--fg);white-space:nowrap}
-.brand span{color:var(--accent)}
-.search{flex:1;max-width:420px;position:relative}
-.search input{width:100%;padding:6px 10px 6px 30px;border:1px solid var(--border);border-radius:8px;
-  background:var(--bg2);color:var(--fg);font-size:13px;outline:none}
-.search input:focus{border-color:var(--accent)}
-.search::before{content:"🔍";position:absolute;left:8px;top:50%;transform:translateY(-50%);font-size:12px;opacity:.6}
-.topbar .spacer{flex:1}
-.icon-btn{background:none;border:1px solid var(--border);border-radius:6px;color:var(--fg);
-  font-size:14px;padding:4px 9px;cursor:pointer}
-.icon-btn:hover{background:var(--bg2)}
-
-/* ===== Sidebar ===== */
-.sidebar{position:fixed;top:52px;left:0;bottom:0;width:var(--sidebar-w);overflow-y:auto;
-  background:var(--bg2);border-right:1px solid var(--border);padding:10px 0 40px;z-index:40}
-.sidebar h3{font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--fg2);
-  margin:16px 14px 6px;font-weight:600}
-.sidebar a.item{display:flex;align-items:baseline;gap:7px;padding:5px 14px 5px 18px;color:var(--fg);
-  text-decoration:none;font-size:13.5px;border-left:3px solid transparent}
-.sidebar a.item:hover{background:rgba(125,125,125,.08)}
-.sidebar a.item.active{border-left-color:var(--accent);background:var(--accent-bg);color:var(--accent);font-weight:600}
-.sidebar a.item .num{color:var(--fg2);font-size:11.5px;min-width:18px;font-variant-numeric:tabular-nums}
-.sidebar a.item.visited .label::after{content:" ✓";color:#3fb950;font-size:11px}
-.sidebar a.item .label{flex:1}
-.sidebar .empty{padding:8px 18px;color:var(--fg2);font-size:13px;font-style:italic}
-
-/* ===== Main ===== */
-.main{margin-left:var(--sidebar-w);padding:76px 32px 60px;max-width:980px}
-@media(min-width:1400px){.main{margin-right:var(--toc-w)}}
-.content{min-height:50vh}
-.loading{color:var(--fg2);padding:40px 0;text-align:center}
-.error-box{border:1px solid #d1242f;border-radius:8px;padding:16px 20px;background:rgba(209,36,47,.06)}
-
-/* ===== Markdown styles ===== */
-.content h1{font-size:1.9em;border-bottom:1px solid var(--border);padding-bottom:.3em;margin-top:.2em}
-.content h2{font-size:1.45em;border-bottom:1px solid var(--border);padding-bottom:.25em;margin-top:1.6em}
-.content h3{font-size:1.15em;margin-top:1.4em}
-.content h2 .anchor,.content h3 .anchor{opacity:0;text-decoration:none;margin-left:6px;font-size:.8em}
-.content h2:hover .anchor,.content h3:hover .anchor{opacity:.6}
-.content a{color:var(--accent);text-decoration:none}
-.content a:hover{text-decoration:underline}
-.content blockquote{margin:0 0 16px;padding:2px 16px;color:var(--fg2);border-left:4px solid var(--border)}
-.content blockquote blockquote{margin-top:8px}
-.content code{font-family:ui-monospace,SFMono-Regular,"Cascadia Code",Consolas,monospace;font-size:.88em;
-  background:var(--code-bg);border-radius:5px;padding:.15em .4em}
-.content pre{background:var(--code-bg);border:1px solid var(--border);border-radius:8px;
-  padding:14px;overflow-x:auto;line-height:1.5}
-.content pre code{background:none;padding:0;font-size:.85em}
-.content table{border-collapse:collapse;display:block;overflow-x:auto;max-width:100%;margin:14px 0}
-.content table th,.content table td{border:1px solid var(--border);padding:6px 12px;font-size:.92em}
-.content table th{background:var(--bg2);font-weight:600}
-.content table tr:nth-child(2n){background:var(--bg2)}
-.content img{max-width:100%}
-.content hr{border:none;border-top:2px solid var(--border);margin:26px 0}
-.content details{border:1px solid var(--border);border-radius:8px;padding:10px 14px;margin:10px 0;background:var(--bg2)}
-.content details summary{cursor:pointer;font-weight:600;color:var(--accent)}
-.content mark{background:var(--mark)}
-.content .mermaid{display:flex;justify-content:center;background:#fff;border:1px solid var(--border);
-  border-radius:8px;padding:14px;margin:14px 0;overflow-x:auto}
-[data-theme="dark"] .content .mermaid{background:#1c2128}
-
-/* ===== Prev / Next ===== */
-.pager{display:flex;gap:12px;margin-top:48px;border-top:1px solid var(--border);padding-top:20px}
-.pager a{flex:1;border:1px solid var(--border);border-radius:8px;padding:12px 16px;text-decoration:none;
-  color:var(--fg);transition:border-color .15s}
-.pager a:hover{border-color:var(--accent)}
-.pager a .dir{font-size:11.5px;color:var(--fg2)}
-.pager a .t{color:var(--accent);font-size:14px;font-weight:600}
-.pager a.next{text-align:right}
-
-/* ===== Right TOC ===== */
-.toc{position:fixed;top:52px;right:0;bottom:0;width:var(--toc-w);overflow-y:auto;padding:24px 16px;
-  font-size:12.5px;display:none}
-@media(min-width:1400px){.toc{display:block}}
-.toc .toc-title{font-size:11px;text-transform:uppercase;color:var(--fg2);font-weight:600;margin-bottom:8px}
-.toc a{display:block;color:var(--fg2);text-decoration:none;padding:3px 0;border-left:2px solid var(--border);padding-left:10px}
-.toc a.h3{padding-left:22px}
-.toc a:hover{color:var(--accent)}
-.toc a.current{color:var(--accent);border-left-color:var(--accent)}
-
-/* ===== Mobile ===== */
-@media(max-width:900px){
-  .topbar .burger{display:block}
-  .sidebar{transform:translateX(-100%);transition:transform .2s;width:min(86vw,330px)}
-  .sidebar.open{transform:translateX(0);box-shadow:0 0 40px rgba(0,0,0,.35)}
-  .main{margin-left:0;padding:70px 18px 50px}
-  .brand .sub{display:none}
-}
-.backdrop{display:none;position:fixed;inset:0;background:rgba(0,0,0,.35);z-index:35}
-.backdrop.show{display:block}
-
-::-webkit-scrollbar{width:10px;height:10px}
-::-webkit-scrollbar-thumb{background:var(--border);border-radius:6px}
+  /* Glue tối thiểu cho HTML do marked sinh ra (Tailwind không với tới được) */
+  .prose pre { background: var(--code-bg) !important; color: inherit; border: 1px solid var(--border); }
+  .prose pre code { background: none; padding: 0; }
+  .prose :not(pre) > code::before, .prose :not(pre) > code::after { content: ""; }
+  .prose .mermaid { display: flex; justify-content: center; background: #fff; border: 1px solid var(--border);
+    border-radius: .5rem; padding: 14px; overflow-x: auto; }
+  .dark .prose .mermaid { background: #1c2128; }
+  .prose .anchor { opacity: 0; text-decoration: none; margin-left: .4rem; font-size: .8em; }
+  .prose h2:hover .anchor, .prose h3:hover .anchor { opacity: .5; }
+  .prose table { display: block; overflow-x: auto; }
+  :root { --code-bg:#f6f8fa; --border:#d1d9e0; }
+  .dark { --code-bg:#161b22; --border:#30363d; }
+  ::-webkit-scrollbar{width:10px;height:10px}
+  ::-webkit-scrollbar-thumb{background:var(--border);border-radius:6px}
 </style>
 </head>
-<body>
 
-<div class="topbar">
-  <button class="burger" id="burger" title="Menu">☰</button>
-  <a class="brand" href="#/kien-thuc/00-INDEX.md">📚 <span>FUFU</span> Docs<span class="sub"> — tài liệu &amp; giáo trình</span></a>
-  <div class="search"><input id="search" type="text" placeholder="Lọc tài liệu… (Ctrl+K)"></div>
-  <div class="spacer"></div>
-  <button class="icon-btn" id="theme-toggle" title="Đổi sáng/tối">🌙</button>
-  <a class="icon-btn" id="gh-link" href="#" target="_blank" rel="noopener" title="Mở repo" style="text-decoration:none">⌂</a>
-</div>
+<body class="m-0 bg-white text-gray-800 dark:bg-[#0d1117] dark:text-gray-100 antialiased">
 
-<nav class="sidebar" id="sidebar"></nav>
-<div class="backdrop" id="backdrop"></div>
+<!-- ===== Topbar ===== -->
+<header class="fixed inset-x-0 top-0 z-50 flex h-14 items-center gap-3 border-b border-gray-200 bg-white/90 px-4 backdrop-blur dark:border-[#30363d] dark:bg-[#0d1117]/90">
+  <button id="burger" class="rounded-md border border-gray-300 px-2.5 py-1 text-lg dark:border-[#30363d] md:hidden" title="Menu">☰</button>
+  <a href="#/kien-thuc/00-INDEX.md" class="whitespace-nowrap text-base font-bold">📚 <span class="text-brand dark:text-brand-dark">FUFU</span> Docs<span class="hidden font-normal text-gray-500 sm:inline"> — tài liệu &amp; giáo trình</span></a>
+  <div class="relative ml-2 max-w-md flex-1">
+    <span class="pointer-events-none absolute left-2.5 top-1/2 -translate-y-1/2 text-xs opacity-60">🔍</span>
+    <input id="search" type="text" placeholder="Lọc tài liệu… (Ctrl+K)"
+      class="w-full rounded-lg border border-gray-300 bg-gray-50 py-1.5 pl-8 pr-3 text-sm outline-none focus:border-brand dark:border-[#30363d] dark:bg-[#161b22] dark:focus:border-brand-dark">
+  </div>
+  <div class="flex-1"></div>
+  <button id="theme-toggle" class="rounded-md border border-gray-300 px-2.5 py-1 text-sm hover:bg-gray-100 dark:border-[#30363d] dark:hover:bg-[#161b22]" title="Sáng/tối">🌙</button>
+  <a id="gh-link" href="#" target="_blank" rel="noopener" class="rounded-md border border-gray-300 px-2.5 py-1 text-sm no-underline hover:bg-gray-100 dark:border-[#30363d] dark:hover:bg-[#161b22]" title="Mở repo">⌂</a>
+</header>
 
-<main class="main">
-  <article class="content" id="content"><div class="loading">Đang tải…</div></article>
-  <div class="pager" id="pager"></div>
+<!-- ===== Sidebar ===== -->
+<nav id="sidebar" class="fixed bottom-0 left-0 top-14 z-40 w-[300px] -translate-x-full overflow-y-auto border-r border-gray-200 bg-gray-50 pb-10 pt-2.5 transition-transform dark:border-[#30363d] dark:bg-[#161b22] md:translate-x-0"></nav>
+<div id="backdrop" class="fixed inset-0 z-30 hidden bg-black/35 md:hidden"></div>
+
+<!-- ===== Main ===== -->
+<main class="px-5 pb-16 pt-[4.75rem] md:ml-[300px] md:px-8 2xl:mr-[240px]">
+  <div class="mx-auto max-w-[980px]">
+    <article id="content" class="prose prose-slate max-w-none dark:prose-invert prose-headings:scroll-mt-20 prose-h1:border-b prose-h1:border-gray-200 prose-h1:pb-2 prose-h2:border-b prose-h2:border-gray-200 prose-h2:pb-1.5 prose-a:text-brand prose-a:no-underline hover:prose-a:underline dark:prose-h1:border-[#30363d] dark:prose-h2:border-[#30363d] dark:prose-a:text-brand-dark prose-img:rounded-lg">
+      <p class="text-center text-gray-500">Đang tải…</p>
+    </article>
+    <nav id="pager" class="mt-12 flex gap-3 border-t border-gray-200 pt-5 dark:border-[#30363d]"></nav>
+  </div>
 </main>
 
-<aside class="toc" id="toc"></aside>
+<!-- ===== Right TOC ===== -->
+<aside id="toc" class="fixed bottom-0 right-0 top-14 hidden w-[240px] overflow-y-auto px-4 py-6 text-[12.5px] 2xl:block"></aside>
 
 <script>
-/* ================= CẤU HÌNH =================
-   Thêm/bớt file ở đây. path = đường dẫn tương đối so với docs/. */
+/* ================= CẤU HÌNH ================= */
 const GITHUB_REPO_URL = "https://github.com/YOUR_USER/YOUR_REPO"; // ← sửa khi deploy
 
 const SECTIONS = [
   { title: "📌 Tài liệu dự án", items: [
-    { path: "du-an/PROJECT-CONTEXT.md",    label: "Project Context — hệ thống FUFU" },
-    { path: "du-an/RESEARCH-PLAN.md",      label: "Research Plan — menu ý tưởng" },
-    { path: "du-an/README-V2.md",          label: "README v2" },
-    { path: "du-an/HARDWARE.md",           label: "Hardware profile" },
-    { path: "du-an/KIEN-TRUC-MERMAID.md",  label: "Kiến trúc (diagram)" },
-    { path: "du-an/BAO-CAO-TONG-HOP.md",   label: "Báo cáo tổng hợp" },
-    { path: "du-an/CHECKLIST-GIAI-PHAP.md",label: "Checklist giải pháp" },
-    { path: "du-an/VAST_AI_GUIDE.md",      label: "Vast.ai guide" },
+    { path: "du-an/PROJECT-CONTEXT.md",     label: "Project Context — hệ thống FUFU" },
+    { path: "du-an/RESEARCH-PLAN.md",       label: "Research Plan — menu ý tưởng" },
+    { path: "du-an/README-V2.md",           label: "README v2" },
+    { path: "du-an/HARDWARE.md",            label: "Hardware profile" },
+    { path: "du-an/KIEN-TRUC-MERMAID.md",   label: "Kiến trúc (diagram)" },
+    { path: "du-an/BAO-CAO-TONG-HOP.md",    label: "Báo cáo tổng hợp" },
+    { path: "du-an/CHECKLIST-GIAI-PHAP.md", label: "Checklist giải pháp" },
+    { path: "du-an/VAST_AI_GUIDE.md",       label: "Vast.ai guide" },
   ]},
   { title: "🗺 Giáo trình — bắt đầu", items: [
     { path: "kien-thuc/00-INDEX.md", label: "Lộ trình học (đọc trước)" },
@@ -203,18 +131,24 @@ const $ = id => document.getElementById(id);
 
 /* ================= THEME ================= */
 function applyTheme(t){
-  document.documentElement.setAttribute("data-theme", t);
-  $("theme-toggle").textContent = t === "dark" ? "☀️" : "🌙";
-  $("hljs-light").disabled = (t === "dark");
-  $("hljs-dark").disabled  = (t !== "dark");
+  const dark = t === "dark";
+  document.documentElement.classList.toggle("dark", dark);
+  $("theme-toggle").textContent = dark ? "☀️" : "🌙";
+  $("hljs-light").disabled = dark;
+  $("hljs-dark").disabled  = !dark;
   localStorage.setItem("fufu-theme", t);
+  if (window.mermaid) mermaid.initialize({ startOnLoad:false, securityLevel:"loose", theme: dark ? "dark" : "neutral" });
 }
 applyTheme(localStorage.getItem("fufu-theme") ||
   (matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light"));
 $("theme-toggle").onclick = () =>
-  applyTheme(document.documentElement.getAttribute("data-theme") === "dark" ? "light" : "dark");
+  applyTheme(document.documentElement.classList.contains("dark") ? "light" : "dark");
 
 /* ================= SIDEBAR ================= */
+const ITEM_BASE = "flex items-baseline gap-2 border-l-[3px] py-1.5 pl-[18px] pr-3.5 text-[13.5px] no-underline";
+const ITEM_OFF  = "border-transparent text-gray-700 hover:bg-gray-500/10 dark:text-gray-300";
+const ITEM_ON   = "border-brand bg-brand/10 font-semibold text-brand dark:border-brand-dark dark:bg-brand-dark/15 dark:text-brand-dark";
+
 function renderSidebar(filter = ""){
   const f = filter.trim().toLowerCase();
   const cur = currentPath();
@@ -223,29 +157,31 @@ function renderSidebar(filter = ""){
     const items = sec.items.filter(it =>
       !f || it.label.toLowerCase().includes(f) || it.path.toLowerCase().includes(f));
     if (!items.length) continue;
-    html += `<h3>${sec.title}</h3>`;
+    html += `<h3 class="mx-3.5 mb-1.5 mt-4 text-[11px] font-semibold uppercase tracking-wide text-gray-500">${sec.title}</h3>`;
     for (const it of items){
-      const cls = ["item", it.path === cur ? "active" : "", visited.has(it.path) ? "visited" : ""].join(" ");
-      html += `<a class="${cls}" href="#/${it.path}">` +
-              (it.num ? `<span class="num">${it.num}</span>` : `<span class="num">•</span>`) +
-              `<span class="label">${it.label}</span></a>`;
+      const active = it.path === cur;
+      const check = visited.has(it.path)
+        ? ` <span class="text-[11px] text-green-500">✓</span>` : "";
+      html += `<a href="#/${it.path}" class="${ITEM_BASE} ${active ? ITEM_ON : ITEM_OFF}">` +
+              `<span class="min-w-[18px] text-[11.5px] tabular-nums text-gray-500">${it.num || "•"}</span>` +
+              `<span class="flex-1">${it.label}${check}</span></a>`;
     }
   }
-  $("sidebar").innerHTML = html || `<div class="empty">Không có tài liệu khớp.</div>`;
+  $("sidebar").innerHTML = html || `<div class="px-[18px] py-2 text-sm italic text-gray-500">Không có tài liệu khớp.</div>`;
 }
 $("search").addEventListener("input", e => renderSidebar(e.target.value));
 document.addEventListener("keydown", e => {
   if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "k"){ e.preventDefault(); $("search").focus(); }
 });
 
-/* Mobile */
-const closeSidebar = () => { $("sidebar").classList.remove("open"); $("backdrop").classList.remove("show"); };
-$("burger").onclick = () => { $("sidebar").classList.toggle("open"); $("backdrop").classList.toggle("show"); };
+/* Mobile drawer */
+const openSidebar  = () => { $("sidebar").classList.remove("-translate-x-full"); $("backdrop").classList.remove("hidden"); };
+const closeSidebar = () => { if (innerWidth < 768){ $("sidebar").classList.add("-translate-x-full"); $("backdrop").classList.add("hidden"); } };
+$("burger").onclick  = () => $("sidebar").classList.contains("-translate-x-full") ? openSidebar() : closeSidebar();
 $("backdrop").onclick = closeSidebar;
 $("sidebar").addEventListener("click", e => { if (e.target.closest("a")) closeSidebar(); });
 
 /* ================= MARKDOWN ================= */
-mermaid.initialize({ startOnLoad: false, theme: "neutral", securityLevel: "loose" });
 const escapeHtml = s => s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
 marked.use({
   gfm: true,
@@ -253,7 +189,7 @@ marked.use({
     code(code, infostring){
       if ((infostring || "").trim() === "mermaid")
         return `<div class="mermaid">${escapeHtml(code)}</div>`;
-      return false; // default renderer
+      return false;
     }
   }
 });
@@ -274,7 +210,7 @@ async function loadDoc(){
   const path = currentPath();
   const frag = (location.hash.split("#")[2] || "");
   const content = $("content");
-  content.innerHTML = `<div class="loading">Đang tải ${path}…</div>`;
+  content.innerHTML = `<p class="text-center text-gray-500">Đang tải ${path}…</p>`;
 
   let md;
   try {
@@ -282,10 +218,11 @@ async function loadDoc(){
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     md = await res.text();
   } catch (err) {
-    content.innerHTML = `<div class="error-box"><b>Không tải được <code>${path}</code></b> (${err.message}).<br><br>
-      Nếu bạn đang mở file trực tiếp (file://), trình duyệt chặn fetch. Hãy chạy 1 server tĩnh:<br>
+    content.innerHTML = `<div class="rounded-lg border border-red-500/60 bg-red-500/5 p-5">
+      <b>Không tải được <code>${path}</code></b> (${err.message}).<br><br>
+      Nếu đang mở bằng <code>file://</code>, trình duyệt chặn fetch. Chạy server tĩnh:
       <pre>cd docs
-python -m http.server 8000</pre>rồi mở <a href="http://localhost:8000">http://localhost:8000</a>.</div>`;
+python -m http.server 8000</pre> rồi mở <a class="text-brand" href="http://localhost:8000">http://localhost:8000</a>.</div>`;
     return;
   }
 
@@ -302,11 +239,11 @@ python -m http.server 8000</pre>rồi mở <a href="http://localhost:8000">http:
     h.appendChild(a);
   });
   $("toc").innerHTML = tocItems.length
-    ? `<div class="toc-title">Trong trang này</div>` +
-      tocItems.map(t => `<a class="${t.level === 3 ? "h3" : ""}" href="#/${path}#${t.id}">${t.text}</a>`).join("")
+    ? `<div class="mb-2 text-[11px] font-semibold uppercase text-gray-500">Trong trang này</div>` +
+      tocItems.map(t => `<a class="block border-l-2 border-gray-200 py-[3px] text-gray-500 no-underline hover:text-brand dark:border-[#30363d] dark:hover:text-brand-dark ${t.level===3?"pl-[22px]":"pl-2.5"}" href="#/${path}#${t.id}">${t.text}</a>`).join("")
     : "";
 
-  /* Rewrite .md links → internal routes */
+  /* Rewrite .md links → internal; file ngoài → GitHub */
   content.querySelectorAll("a[href]").forEach(a => {
     const href = a.getAttribute("href");
     if (/^(https?:|mailto:|#)/.test(href)) return;
@@ -316,51 +253,51 @@ python -m http.server 8000</pre>rồi mở <a href="http://localhost:8000">http:
       const target = byBasename[clean.split("/").pop().toLowerCase()];
       if (target){ a.setAttribute("href", `#/${target.path}${hfrag}`); return; }
     }
-    // file ngoài site (code, config...) → mở trên GitHub
     if (GITHUB_REPO_URL.includes("github.com") && !GITHUB_REPO_URL.includes("YOUR_USER")){
       a.setAttribute("href", `${GITHUB_REPO_URL}/blob/main/${clean.replace(/^(\.\.\/)+/, "")}`);
       a.setAttribute("target", "_blank");
     }
   });
 
-  /* Code highlight + mermaid */
+  /* Highlight + mermaid */
   content.querySelectorAll("pre code").forEach(el => hljs.highlightElement(el));
-  try { await mermaid.run({ nodes: content.querySelectorAll(".mermaid") }); } catch(e){ /* diagram lỗi thì giữ text */ }
+  try { await mermaid.run({ nodes: content.querySelectorAll(".mermaid") }); } catch(e){}
 
   /* Pager */
   const idx = FLAT.findIndex(it => it.path === path);
   const prev = FLAT[idx - 1], next = FLAT[idx + 1];
+  const PG = "flex-1 rounded-lg border border-gray-200 p-3 no-underline hover:border-brand dark:border-[#30363d] dark:hover:border-brand-dark";
   $("pager").innerHTML =
-    (prev ? `<a class="prev" href="#/${prev.path}"><div class="dir">← Trước</div><div class="t">${prev.label}</div></a>` : "<span style='flex:1'></span>") +
-    (next ? `<a class="next" href="#/${next.path}"><div class="dir">Sau →</div><div class="t">${next.label}</div></a>` : "<span style='flex:1'></span>");
+    (prev ? `<a class="${PG}" href="#/${prev.path}"><div class="text-[11.5px] text-gray-500">← Trước</div><div class="text-sm font-semibold text-brand dark:text-brand-dark">${prev.label}</div></a>` : `<span class="flex-1"></span>`) +
+    (next ? `<a class="${PG} text-right" href="#/${next.path}"><div class="text-[11.5px] text-gray-500">Sau →</div><div class="text-sm font-semibold text-brand dark:text-brand-dark">${next.label}</div></a>` : `<span class="flex-1"></span>`);
 
-  /* Visited + title + sidebar refresh */
+  /* Visited + title + sidebar */
   visited.add(path);
   localStorage.setItem("fufu-visited", JSON.stringify([...visited]));
-  const item = FLAT[idx];
-  document.title = (item ? item.label : "FUFU") + " · FUFU Docs";
+  document.title = (FLAT[idx] ? FLAT[idx].label : "FUFU") + " · FUFU Docs";
   renderSidebar($("search").value);
-  const act = document.querySelector(".sidebar a.active");
+  const act = document.querySelector('#sidebar a[href="#/'+path+'"]');
   if (act) act.scrollIntoView({ block: "nearest" });
 
-  /* Scroll to fragment or top */
-  if (frag){
-    const el = document.getElementById(frag);
-    if (el) el.scrollIntoView();
-  } else window.scrollTo(0, 0);
+  if (frag){ const el = document.getElementById(frag); if (el) el.scrollIntoView(); }
+  else window.scrollTo(0, 0);
 
-  /* TOC highlight on scroll */
   setupTocSpy();
 }
 
 function setupTocSpy(){
-  const links = [...document.querySelectorAll(".toc a")];
+  const links = [...document.querySelectorAll("#toc a")];
   if (!links.length) return;
   const heads = links.map(a => document.getElementById(a.getAttribute("href").split("#")[2])).filter(Boolean);
   const onScroll = () => {
     let cur = heads[0];
     for (const h of heads) if (h.getBoundingClientRect().top < 90) cur = h;
-    links.forEach(a => a.classList.toggle("current", cur && a.getAttribute("href").endsWith("#" + cur.id)));
+    links.forEach(a => {
+      const on = cur && a.getAttribute("href").endsWith("#" + cur.id);
+      a.classList.toggle("text-brand", on);
+      a.classList.toggle("dark:text-brand-dark", on);
+      a.classList.toggle("border-brand", on);
+    });
   };
   window.removeEventListener("scroll", window.__tocSpy || (()=>{}));
   window.__tocSpy = onScroll;
