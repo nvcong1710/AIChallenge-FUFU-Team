@@ -1,98 +1,121 @@
-"""Pre-download tất cả model HuggingFace để chạy offline. Chạy 1 lần sau khi cài deps."""
+"""Pre-download mọi model HuggingFace cần — full stack v2.
 
-import sys
-from pathlib import Path
+Models (ước lượng total ~22-25GB):
+  1) SigLIP-2 Large 384       ~1.5GB  (upgrade từ Base)
+  2) NLLB-200 distilled 600M  ~2.5GB
+  3) Qwen2.5-3B paraphrase    ~6GB  (INT4 chạy time)
+  4) Qwen2.5-VL-7B caption    ~14GB → INT4 ~5GB chạy time
+  5) PhoWhisper-medium ASR    ~3GB
+  6) BGE-reranker-v2-m3       ~2.5GB
+  7) YOLO-World v8l           ~0.5GB
+"""
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+import time
 
 import torch
-import yaml
-
-CFG = yaml.safe_load(
-    (Path(__file__).resolve().parents[1] / "config" / "settings.yaml").read_text(encoding="utf-8")
+from transformers import (
+    AutoModel,
+    AutoModelForCausalLM,
+    AutoModelForSeq2SeqLM,
+    AutoModelForSequenceClassification,
+    AutoProcessor,
+    AutoTokenizer,
+    BitsAndBytesConfig,
+    pipeline,
 )
 
 
-def dl(name: str, fn) -> None:
-    print(f"\n→ {name}")
-    try:
-        fn()
-        print("  ✓")
-    except Exception as e:
-        print(f"  ⚠ fail: {e}")
+def banner(msg):
+    print(f"\n{'='*60}\n  {msg}\n{'='*60}", flush=True)
 
 
-def main():
-    from transformers import (
-        AutoModel,
-        AutoModelForCausalLM,
-        AutoModelForSeq2SeqLM,
-        AutoProcessor,
-        AutoTokenizer,
-        BitsAndBytesConfig,
+t0 = time.time()
+
+banner("1/7 SigLIP-2 Large 384")
+t = time.time()
+AutoProcessor.from_pretrained("google/siglip2-large-patch16-384", use_fast=True)
+AutoModel.from_pretrained("google/siglip2-large-patch16-384", torch_dtype=torch.float16)
+print(f"  ✓ {time.time()-t:.0f}s", flush=True)
+
+banner("2/7 NLLB-200 translator")
+t = time.time()
+AutoTokenizer.from_pretrained("facebook/nllb-200-distilled-600M")
+AutoModelForSeq2SeqLM.from_pretrained("facebook/nllb-200-distilled-600M", torch_dtype=torch.float16)
+print(f"  ✓ {time.time()-t:.0f}s", flush=True)
+
+banner("3/7 Qwen2.5-3B paraphraser (INT4)")
+t = time.time()
+AutoTokenizer.from_pretrained("Qwen/Qwen2.5-3B-Instruct")
+bnb = BitsAndBytesConfig(
+    load_in_4bit=True,
+    bnb_4bit_compute_dtype=torch.float16,
+    bnb_4bit_quant_type="nf4",
+    bnb_4bit_use_double_quant=True,
+)
+AutoModelForCausalLM.from_pretrained(
+    "Qwen/Qwen2.5-3B-Instruct",
+    quantization_config=bnb,
+    device_map="auto",
+)
+print(f"  ✓ {time.time()-t:.0f}s", flush=True)
+
+banner("4/7 Qwen2.5-VL-7B caption (INT4)")
+t = time.time()
+AutoProcessor.from_pretrained("Qwen/Qwen2.5-VL-7B-Instruct")
+bnb_vl = BitsAndBytesConfig(
+    load_in_4bit=True,
+    bnb_4bit_compute_dtype=torch.bfloat16,
+    bnb_4bit_quant_type="nf4",
+    bnb_4bit_use_double_quant=True,
+)
+try:
+    from transformers import Qwen2_5_VLForConditionalGeneration
+    Qwen2_5_VLForConditionalGeneration.from_pretrained(
+        "Qwen/Qwen2.5-VL-7B-Instruct",
+        quantization_config=bnb_vl,
+        device_map="auto",
     )
+except ImportError:
+    from transformers import Qwen2VLForConditionalGeneration
+    Qwen2VLForConditionalGeneration.from_pretrained(
+        "Qwen/Qwen2.5-VL-7B-Instruct",
+        quantization_config=bnb_vl,
+        device_map="auto",
+    )
+print(f"  ✓ {time.time()-t:.0f}s", flush=True)
 
-    siglip = CFG["models"]["siglip"]
-    dl(f"SigLIP-2 {siglip}", lambda: (
-        AutoProcessor.from_pretrained(siglip),
-        AutoModel.from_pretrained(siglip, torch_dtype=torch.float16),
-    ))
+banner("5/7 PhoWhisper-medium ASR")
+t = time.time()
+pipeline(
+    "automatic-speech-recognition",
+    model="vinai/PhoWhisper-medium",
+    torch_dtype=torch.float16,
+    device=0,
+)
+print(f"  ✓ {time.time()-t:.0f}s", flush=True)
 
-    trans = CFG["models"]["translator"]
-    dl(f"NLLB translator {trans}", lambda: (
-        AutoTokenizer.from_pretrained(trans),
-        AutoModelForSeq2SeqLM.from_pretrained(trans, torch_dtype=torch.float16),
-    ))
+banner("6/7 BGE-reranker-v2-m3 (cross-encoder)")
+t = time.time()
+AutoTokenizer.from_pretrained("BAAI/bge-reranker-v2-m3")
+AutoModelForSequenceClassification.from_pretrained(
+    "BAAI/bge-reranker-v2-m3", torch_dtype=torch.float16
+)
+print(f"  ✓ {time.time()-t:.0f}s", flush=True)
 
-    para = CFG["models"]["paraphraser"]
-    def _dl_para():
-        AutoTokenizer.from_pretrained(para)
-        if torch.cuda.is_available():
-            bnb = BitsAndBytesConfig(
-                load_in_4bit=True,
-                bnb_4bit_compute_dtype=torch.float16,
-                bnb_4bit_quant_type="nf4",
-            )
-            AutoModelForCausalLM.from_pretrained(para, quantization_config=bnb, device_map="auto")
-    dl(f"Paraphraser {para}", _dl_para)
+banner("7/7 YOLO-World v8l")
+t = time.time()
+from ultralytics import YOLOWorld
+YOLOWorld("yolov8l-world.pt")
+print(f"  ✓ {time.time()-t:.0f}s", flush=True)
 
-    cap = CFG["extractors"]["caption_model"]
-    def _dl_cap():
-        AutoProcessor.from_pretrained(cap)
-        if torch.cuda.is_available():
-            bnb = BitsAndBytesConfig(
-                load_in_4bit=True,
-                bnb_4bit_compute_dtype=torch.bfloat16,
-                bnb_4bit_quant_type="nf4",
-                bnb_4bit_use_double_quant=True,
-            )
-            try:
-                from transformers import Qwen2_5_VLForConditionalGeneration
-                Qwen2_5_VLForConditionalGeneration.from_pretrained(
-                    cap, quantization_config=bnb, device_map="auto"
-                )
-            except ImportError:
-                from transformers import Qwen2VLForConditionalGeneration
-                Qwen2VLForConditionalGeneration.from_pretrained(
-                    cap, quantization_config=bnb, device_map="auto"
-                )
-    dl(f"Caption VLM {cap}", _dl_cap)
+# EasyOCR (sẽ tự tải models lần extract đầu, có thể prefetch ở đây)
+banner("Bonus: EasyOCR VN reader (prefetch)")
+t = time.time()
+try:
+    import easyocr
+    easyocr.Reader(["vi", "en"], gpu=True, verbose=False)
+    print(f"  ✓ {time.time()-t:.0f}s")
+except Exception as e:
+    print(f"  ⚠ skip: {e}")
 
-    asr = CFG["extractors"]["asr_model"]
-    dl(f"ASR {asr}", lambda: __import__("transformers").pipeline(
-        task="automatic-speech-recognition",
-        model=asr,
-        torch_dtype=torch.float16 if torch.cuda.is_available() else torch.float32,
-    ))
-
-    det = CFG["extractors"]["detection_model"]
-    def _dl_det():
-        from ultralytics import YOLOWorld
-        YOLOWorld(det)
-    dl(f"YOLO-World {det}", _dl_det)
-
-    print("\n=== Xong tất cả model ===")
-
-
-if __name__ == "__main__":
-    main()
+print(f"\n=== TỔNG: {time.time()-t0:.0f}s ===", flush=True)

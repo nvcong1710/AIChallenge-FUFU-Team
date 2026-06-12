@@ -91,7 +91,7 @@ def render_card(r: dict, rank: int, expected: str) -> str:
 
 HTML_TEMPLATE = """<!doctype html>
 <html lang="vi"><head><meta charset="utf-8">
-<title>BetterDay Eval Report</title>
+<title>FUFU Eval Report</title>
 <style>
   body {{ font-family: system-ui, -apple-system, sans-serif; background:#0b1220; color:#e2e8f0;
          margin:0; padding:20px; }}
@@ -133,7 +133,7 @@ HTML_TEMPLATE = """<!doctype html>
   .card .bd {{ margin-top:4px; color:#64748b; font-size:9px;
                font-family:ui-monospace,monospace; }}
 </style></head><body>
-<h1>BetterDay Eval Report</h1>
+<h1>FUFU Eval Report</h1>
 <div class="stats">
   <table>
     <tr><td class="label">Test cases:</td><td>{n}</td></tr>

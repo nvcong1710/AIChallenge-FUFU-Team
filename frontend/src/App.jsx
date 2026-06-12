@@ -30,7 +30,7 @@ export default function App() {
   return (
     <div className="container">
       <header>
-        <h1>BetterDay v2 — Multimedia Search</h1>
+        <h1>FUFU v2 — Multimedia Search</h1>
         <span className="sub">SigLIP-2 · OCR · Caption · Detection · ASR · FAISS + 2× BM25</span>
         {stats && (
           <span className="stats">

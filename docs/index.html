@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FUFU Docs</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📚</text></svg>">
+<!-- Markdown + code highlight + mermaid (CDN) -->
+<script src="https://cdn.jsdelivr.net/npm/marked@12.0.2/marked.min.js"></script>
+<link id="hljs-light" rel="stylesheet" href="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.9.0/build/styles/github.min.css">
+<link id="hljs-dark" rel="stylesheet" href="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.9.0/build/styles/github-dark.min.css" disabled>
+<script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.9.0/build/highlight.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10.9.1/dist/mermaid.min.js"></script>
+<style>
+:root{
+  --bg:#ffffff; --bg2:#f6f8fa; --fg:#1f2328; --fg2:#656d76; --border:#d1d9e0;
+  --accent:#0969da; --accent-bg:#ddf4ff; --sidebar-w:300px; --toc-w:220px;
+  --code-bg:#f6f8fa; --mark:#fff8c5;
+}
+[data-theme="dark"]{
+  --bg:#0d1117; --bg2:#161b22; --fg:#e6edf3; --fg2:#8d96a0; --border:#30363d;
+  --accent:#4493f8; --accent-bg:#121d2f; --code-bg:#161b22; --mark:#4d3800;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;font-family:-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;background:var(--bg);color:var(--fg);line-height:1.65}
+
+/* ===== Topbar ===== */
+.topbar{position:fixed;top:0;left:0;right:0;height:52px;display:flex;align-items:center;gap:10px;
+  padding:0 14px;background:var(--bg);border-bottom:1px solid var(--border);z-index:50}
+.topbar .burger{display:none;background:none;border:1px solid var(--border);border-radius:6px;
+  color:var(--fg);font-size:16px;padding:4px 10px;cursor:pointer}
+.brand{font-weight:700;font-size:16px;text-decoration:none;color:var(--fg);white-space:nowrap}
+.brand span{color:var(--accent)}
+.search{flex:1;max-width:420px;position:relative}
+.search input{width:100%;padding:6px 10px 6px 30px;border:1px solid var(--border);border-radius:8px;
+  background:var(--bg2);color:var(--fg);font-size:13px;outline:none}
+.search input:focus{border-color:var(--accent)}
+.search::before{content:"🔍";position:absolute;left:8px;top:50%;transform:translateY(-50%);font-size:12px;opacity:.6}
+.topbar .spacer{flex:1}
+.icon-btn{background:none;border:1px solid var(--border);border-radius:6px;color:var(--fg);
+  font-size:14px;padding:4px 9px;cursor:pointer}
+.icon-btn:hover{background:var(--bg2)}
+
+/* ===== Sidebar ===== */
+.sidebar{position:fixed;top:52px;left:0;bottom:0;width:var(--sidebar-w);overflow-y:auto;
+  background:var(--bg2);border-right:1px solid var(--border);padding:10px 0 40px;z-index:40}
+.sidebar h3{font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--fg2);
+  margin:16px 14px 6px;font-weight:600}
+.sidebar a.item{display:flex;align-items:baseline;gap:7px;padding:5px 14px 5px 18px;color:var(--fg);
+  text-decoration:none;font-size:13.5px;border-left:3px solid transparent}
+.sidebar a.item:hover{background:rgba(125,125,125,.08)}
+.sidebar a.item.active{border-left-color:var(--accent);background:var(--accent-bg);color:var(--accent);font-weight:600}
+.sidebar a.item .num{color:var(--fg2);font-size:11.5px;min-width:18px;font-variant-numeric:tabular-nums}
+.sidebar a.item.visited .label::after{content:" ✓";color:#3fb950;font-size:11px}
+.sidebar a.item .label{flex:1}
+.sidebar .empty{padding:8px 18px;color:var(--fg2);font-size:13px;font-style:italic}
+
+/* ===== Main ===== */
+.main{margin-left:var(--sidebar-w);padding:76px 32px 60px;max-width:980px}
+@media(min-width:1400px){.main{margin-right:var(--toc-w)}}
+.content{min-height:50vh}
+.loading{color:var(--fg2);padding:40px 0;text-align:center}
+.error-box{border:1px solid #d1242f;border-radius:8px;padding:16px 20px;background:rgba(209,36,47,.06)}
+
+/* ===== Markdown styles ===== */
+.content h1{font-size:1.9em;border-bottom:1px solid var(--border);padding-bottom:.3em;margin-top:.2em}
+.content h2{font-size:1.45em;border-bottom:1px solid var(--border);padding-bottom:.25em;margin-top:1.6em}
+.content h3{font-size:1.15em;margin-top:1.4em}
+.content h2 .anchor,.content h3 .anchor{opacity:0;text-decoration:none;margin-left:6px;font-size:.8em}
+.content h2:hover .anchor,.content h3:hover .anchor{opacity:.6}
+.content a{color:var(--accent);text-decoration:none}
+.content a:hover{text-decoration:underline}
+.content blockquote{margin:0 0 16px;padding:2px 16px;color:var(--fg2);border-left:4px solid var(--border)}
+.content blockquote blockquote{margin-top:8px}
+.content code{font-family:ui-monospace,SFMono-Regular,"Cascadia Code",Consolas,monospace;font-size:.88em;
+  background:var(--code-bg);border-radius:5px;padding:.15em .4em}
+.content pre{background:var(--code-bg);border:1px solid var(--border);border-radius:8px;
+  padding:14px;overflow-x:auto;line-height:1.5}
+.content pre code{background:none;padding:0;font-size:.85em}
+.content table{border-collapse:collapse;display:block;overflow-x:auto;max-width:100%;margin:14px 0}
+.content table th,.content table td{border:1px solid var(--border);padding:6px 12px;font-size:.92em}
+.content table th{background:var(--bg2);font-weight:600}
+.content table tr:nth-child(2n){background:var(--bg2)}
+.content img{max-width:100%}
+.content hr{border:none;border-top:2px solid var(--border);margin:26px 0}
+.content details{border:1px solid var(--border);border-radius:8px;padding:10px 14px;margin:10px 0;background:var(--bg2)}
+.content details summary{cursor:pointer;font-weight:600;color:var(--accent)}
+.content mark{background:var(--mark)}
+.content .mermaid{display:flex;justify-content:center;background:#fff;border:1px solid var(--border);
+  border-radius:8px;padding:14px;margin:14px 0;overflow-x:auto}
+[data-theme="dark"] .content .mermaid{background:#1c2128}
+
+/* ===== Prev / Next ===== */
+.pager{display:flex;gap:12px;margin-top:48px;border-top:1px solid var(--border);padding-top:20px}
+.pager a{flex:1;border:1px solid var(--border);border-radius:8px;padding:12px 16px;text-decoration:none;
+  color:var(--fg);transition:border-color .15s}
+.pager a:hover{border-color:var(--accent)}
+.pager a .dir{font-size:11.5px;color:var(--fg2)}
+.pager a .t{color:var(--accent);font-size:14px;font-weight:600}
+.pager a.next{text-align:right}
+
+/* ===== Right TOC ===== */
+.toc{position:fixed;top:52px;right:0;bottom:0;width:var(--toc-w);overflow-y:auto;padding:24px 16px;
+  font-size:12.5px;display:none}
+@media(min-width:1400px){.toc{display:block}}
+.toc .toc-title{font-size:11px;text-transform:uppercase;color:var(--fg2);font-weight:600;margin-bottom:8px}
+.toc a{display:block;color:var(--fg2);text-decoration:none;padding:3px 0;border-left:2px solid var(--border);padding-left:10px}
+.toc a.h3{padding-left:22px}
+.toc a:hover{color:var(--accent)}
+.toc a.current{color:var(--accent);border-left-color:var(--accent)}
+
+/* ===== Mobile ===== */
+@media(max-width:900px){
+  .topbar .burger{display:block}
+  .sidebar{transform:translateX(-100%);transition:transform .2s;width:min(86vw,330px)}
+  .sidebar.open{transform:translateX(0);box-shadow:0 0 40px rgba(0,0,0,.35)}
+  .main{margin-left:0;padding:70px 18px 50px}
+  .brand .sub{display:none}
+}
+.backdrop{display:none;position:fixed;inset:0;background:rgba(0,0,0,.35);z-index:35}
+.backdrop.show{display:block}
+
+::-webkit-scrollbar{width:10px;height:10px}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:6px}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <button class="burger" id="burger" title="Menu">☰</button>
+  <a class="brand" href="#/kien-thuc/00-INDEX.md">📚 <span>FUFU</span> Docs<span class="sub"> — tài liệu &amp; giáo trình</span></a>
+  <div class="search"><input id="search" type="text" placeholder="Lọc tài liệu… (Ctrl+K)"></div>
+  <div class="spacer"></div>
+  <button class="icon-btn" id="theme-toggle" title="Đổi sáng/tối">🌙</button>
+  <a class="icon-btn" id="gh-link" href="#" target="_blank" rel="noopener" title="Mở repo" style="text-decoration:none">⌂</a>
+</div>
+
+<nav class="sidebar" id="sidebar"></nav>
+<div class="backdrop" id="backdrop"></div>
+
+<main class="main">
+  <article class="content" id="content"><div class="loading">Đang tải…</div></article>
+  <div class="pager" id="pager"></div>
+</main>
+
+<aside class="toc" id="toc"></aside>
+
+<script>
+/* ================= CẤU HÌNH =================
+   Thêm/bớt file ở đây. path = đường dẫn tương đối so với docs/. */
+const GITHUB_REPO_URL = "https://github.com/YOUR_USER/YOUR_REPO"; // ← sửa khi deploy
+
+const SECTIONS = [
+  { title: "📌 Tài liệu dự án", items: [
+    { path: "du-an/PROJECT-CONTEXT.md",    label: "Project Context — hệ thống FUFU" },
+    { path: "du-an/RESEARCH-PLAN.md",      label: "Research Plan — menu ý tưởng" },
+    { path: "du-an/README-V2.md",          label: "README v2" },
+    { path: "du-an/HARDWARE.md",           label: "Hardware profile" },
+    { path: "du-an/KIEN-TRUC-MERMAID.md",  label: "Kiến trúc (diagram)" },
+    { path: "du-an/BAO-CAO-TONG-HOP.md",   label: "Báo cáo tổng hợp" },
+    { path: "du-an/CHECKLIST-GIAI-PHAP.md",label: "Checklist giải pháp" },
+    { path: "du-an/VAST_AI_GUIDE.md",      label: "Vast.ai guide" },
+  ]},
+  { title: "🗺 Giáo trình — bắt đầu", items: [
+    { path: "kien-thuc/00-INDEX.md", label: "Lộ trình học (đọc trước)" },
+  ]},
+  { title: "Phần I — Nền tảng Deep Learning", items: [
+    { path: "kien-thuc/01-tu-ml-co-dien-sang-neural-network.md", num: "01", label: "Từ ML cổ điển sang Neural Network" },
+    { path: "kien-thuc/02-huan-luyen-mang-neural.md",            num: "02", label: "Huấn luyện mạng neural" },
+    { path: "kien-thuc/03-cnn-xu-ly-anh.md",                     num: "03", label: "CNN — xử lý ảnh" },
+    { path: "kien-thuc/04-attention-va-transformer.md",          num: "04", label: "Attention & Transformer" },
+    { path: "kien-thuc/05-tokenization-bert-gpt.md",             num: "05", label: "Tokenization, BERT vs GPT" },
+    { path: "kien-thuc/06-vision-transformer.md",                num: "06", label: "Vision Transformer (ViT)" },
+  ]},
+  { title: "Phần II — Các model trong FUFU", items: [
+    { path: "kien-thuc/07-contrastive-learning-clip-siglip.md",  num: "07", label: "CLIP/SigLIP — trái tim FUFU" },
+    { path: "kien-thuc/08-vlm-qwen-vl-quantization.md",          num: "08", label: "VLM: Qwen-VL & quantization" },
+    { path: "kien-thuc/09-asr-phowhisper.md",                    num: "09", label: "ASR: PhoWhisper" },
+    { path: "kien-thuc/10-ocr-va-open-vocab-detection.md",       num: "10", label: "OCR & open-vocab detection" },
+    { path: "kien-thuc/11-llm-sinh-van-ban-dich-paraphrase.md",  num: "11", label: "LLM: dịch & paraphrase" },
+    { path: "kien-thuc/12-bi-encoder-cross-encoder-rerank.md",   num: "12", label: "Bi-encoder vs Cross-encoder" },
+  ]},
+  { title: "Phần III — Hệ retrieval", items: [
+    { path: "kien-thuc/13-vector-search-faiss-hnsw.md",          num: "13", label: "Vector search: FAISS & HNSW" },
+    { path: "kien-thuc/14-bm25-hybrid-fusion.md",                num: "14", label: "BM25 & hybrid fusion" },
+    { path: "kien-thuc/15-pipeline-fufu-end-to-end.md",          num: "15", label: "Pipeline FUFU end-to-end" },
+  ]},
+  { title: "Phần IV — Kỹ năng thực chiến", items: [
+    { path: "kien-thuc/16-fine-tuning-lora-peft.md",             num: "16", label: "Fine-tuning: LoRA/PEFT" },
+    { path: "kien-thuc/17-hyperparameter-tuning.md",             num: "17", label: "Chỉnh siêu tham số" },
+    { path: "kien-thuc/18-ensemble-fusion.md",                   num: "18", label: "Ensemble & fusion" },
+    { path: "kien-thuc/19-danh-gia-retrieval-eval.md",           num: "19", label: "Đánh giá retrieval" },
+  ]},
+];
+
+/* ================= STATE ================= */
+const FLAT = SECTIONS.flatMap(s => s.items);
+const byBasename = {};
+FLAT.forEach(it => { byBasename[it.path.split("/").pop().toLowerCase()] = it; });
+const visited = new Set(JSON.parse(localStorage.getItem("fufu-visited") || "[]"));
+const $ = id => document.getElementById(id);
+
+/* ================= THEME ================= */
+function applyTheme(t){
+  document.documentElement.setAttribute("data-theme", t);
+  $("theme-toggle").textContent = t === "dark" ? "☀️" : "🌙";
+  $("hljs-light").disabled = (t === "dark");
+  $("hljs-dark").disabled  = (t !== "dark");
+  localStorage.setItem("fufu-theme", t);
+}
+applyTheme(localStorage.getItem("fufu-theme") ||
+  (matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light"));
+$("theme-toggle").onclick = () =>
+  applyTheme(document.documentElement.getAttribute("data-theme") === "dark" ? "light" : "dark");
+
+/* ================= SIDEBAR ================= */
+function renderSidebar(filter = ""){
+  const f = filter.trim().toLowerCase();
+  const cur = currentPath();
+  let html = "";
+  for (const sec of SECTIONS){
+    const items = sec.items.filter(it =>
+      !f || it.label.toLowerCase().includes(f) || it.path.toLowerCase().includes(f));
+    if (!items.length) continue;
+    html += `<h3>${sec.title}</h3>`;
+    for (const it of items){
+      const cls = ["item", it.path === cur ? "active" : "", visited.has(it.path) ? "visited" : ""].join(" ");
+      html += `<a class="${cls}" href="#/${it.path}">` +
+              (it.num ? `<span class="num">${it.num}</span>` : `<span class="num">•</span>`) +
+              `<span class="label">${it.label}</span></a>`;
+    }
+  }
+  $("sidebar").innerHTML = html || `<div class="empty">Không có tài liệu khớp.</div>`;
+}
+$("search").addEventListener("input", e => renderSidebar(e.target.value));
+document.addEventListener("keydown", e => {
+  if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "k"){ e.preventDefault(); $("search").focus(); }
+});
+
+/* Mobile */
+const closeSidebar = () => { $("sidebar").classList.remove("open"); $("backdrop").classList.remove("show"); };
+$("burger").onclick = () => { $("sidebar").classList.toggle("open"); $("backdrop").classList.toggle("show"); };
+$("backdrop").onclick = closeSidebar;
+$("sidebar").addEventListener("click", e => { if (e.target.closest("a")) closeSidebar(); });
+
+/* ================= MARKDOWN ================= */
+mermaid.initialize({ startOnLoad: false, theme: "neutral", securityLevel: "loose" });
+const escapeHtml = s => s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+marked.use({
+  gfm: true,
+  renderer: {
+    code(code, infostring){
+      if ((infostring || "").trim() === "mermaid")
+        return `<div class="mermaid">${escapeHtml(code)}</div>`;
+      return false; // default renderer
+    }
+  }
+});
+
+function slugify(text){
+  return text.toLowerCase().trim()
+    .normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/đ/g, "d")
+    .replace(/[^a-z0-9\s-]/g, "").replace(/\s+/g, "-");
+}
+
+function currentPath(){
+  const h = location.hash.replace(/^#\//, "");
+  const p = decodeURIComponent(h.split("#")[0]);
+  return FLAT.some(it => it.path === p) ? p : "kien-thuc/00-INDEX.md";
+}
+
+async function loadDoc(){
+  const path = currentPath();
+  const frag = (location.hash.split("#")[2] || "");
+  const content = $("content");
+  content.innerHTML = `<div class="loading">Đang tải ${path}…</div>`;
+
+  let md;
+  try {
+    const res = await fetch(encodeURI(path), { cache: "no-cache" });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    md = await res.text();
+  } catch (err) {
+    content.innerHTML = `<div class="error-box"><b>Không tải được <code>${path}</code></b> (${err.message}).<br><br>
+      Nếu bạn đang mở file trực tiếp (file://), trình duyệt chặn fetch. Hãy chạy 1 server tĩnh:<br>
+      <pre>cd docs
+python -m http.server 8000</pre>rồi mở <a href="http://localhost:8000">http://localhost:8000</a>.</div>`;
+    return;
+  }
+
+  content.innerHTML = marked.parse(md);
+
+  /* Heading ids + anchor + TOC */
+  const tocItems = [];
+  content.querySelectorAll("h2, h3").forEach(h => {
+    const id = slugify(h.textContent);
+    h.id = id;
+    tocItems.push({ id, text: h.textContent, level: h.tagName === "H2" ? 2 : 3 });
+    const a = document.createElement("a");
+    a.className = "anchor"; a.href = `#/${path}#${id}`; a.textContent = "#";
+    h.appendChild(a);
+  });
+  $("toc").innerHTML = tocItems.length
+    ? `<div class="toc-title">Trong trang này</div>` +
+      tocItems.map(t => `<a class="${t.level === 3 ? "h3" : ""}" href="#/${path}#${t.id}">${t.text}</a>`).join("")
+    : "";
+
+  /* Rewrite .md links → internal routes */
+  content.querySelectorAll("a[href]").forEach(a => {
+    const href = a.getAttribute("href");
+    if (/^(https?:|mailto:|#)/.test(href)) return;
+    const clean = href.split("#")[0];
+    const hfrag = href.includes("#") ? "#" + href.split("#")[1] : "";
+    if (clean.toLowerCase().endsWith(".md")){
+      const target = byBasename[clean.split("/").pop().toLowerCase()];
+      if (target){ a.setAttribute("href", `#/${target.path}${hfrag}`); return; }
+    }
+    // file ngoài site (code, config...) → mở trên GitHub
+    if (GITHUB_REPO_URL.includes("github.com") && !GITHUB_REPO_URL.includes("YOUR_USER")){
+      a.setAttribute("href", `${GITHUB_REPO_URL}/blob/main/${clean.replace(/^(\.\.\/)+/, "")}`);
+      a.setAttribute("target", "_blank");
+    }
+  });
+
+  /* Code highlight + mermaid */
+  content.querySelectorAll("pre code").forEach(el => hljs.highlightElement(el));
+  try { await mermaid.run({ nodes: content.querySelectorAll(".mermaid") }); } catch(e){ /* diagram lỗi thì giữ text */ }
+
+  /* Pager */
+  const idx = FLAT.findIndex(it => it.path === path);
+  const prev = FLAT[idx - 1], next = FLAT[idx + 1];
+  $("pager").innerHTML =
+    (prev ? `<a class="prev" href="#/${prev.path}"><div class="dir">← Trước</div><div class="t">${prev.label}</div></a>` : "<span style='flex:1'></span>") +
+    (next ? `<a class="next" href="#/${next.path}"><div class="dir">Sau →</div><div class="t">${next.label}</div></a>` : "<span style='flex:1'></span>");
+
+  /* Visited + title + sidebar refresh */
+  visited.add(path);
+  localStorage.setItem("fufu-visited", JSON.stringify([...visited]));
+  const item = FLAT[idx];
+  document.title = (item ? item.label : "FUFU") + " · FUFU Docs";
+  renderSidebar($("search").value);
+  const act = document.querySelector(".sidebar a.active");
+  if (act) act.scrollIntoView({ block: "nearest" });
+
+  /* Scroll to fragment or top */
+  if (frag){
+    const el = document.getElementById(frag);
+    if (el) el.scrollIntoView();
+  } else window.scrollTo(0, 0);
+
+  /* TOC highlight on scroll */
+  setupTocSpy();
+}
+
+function setupTocSpy(){
+  const links = [...document.querySelectorAll(".toc a")];
+  if (!links.length) return;
+  const heads = links.map(a => document.getElementById(a.getAttribute("href").split("#")[2])).filter(Boolean);
+  const onScroll = () => {
+    let cur = heads[0];
+    for (const h of heads) if (h.getBoundingClientRect().top < 90) cur = h;
+    links.forEach(a => a.classList.toggle("current", cur && a.getAttribute("href").endsWith("#" + cur.id)));
+  };
+  window.removeEventListener("scroll", window.__tocSpy || (()=>{}));
+  window.__tocSpy = onScroll;
+  window.addEventListener("scroll", onScroll, { passive: true });
+}
+
+/* GitHub link */
+if (!GITHUB_REPO_URL.includes("YOUR_USER")) $("gh-link").href = GITHUB_REPO_URL;
+else $("gh-link").style.display = "none";
+
+window.addEventListener("hashchange", loadDoc);
+if (!location.hash) location.hash = "#/kien-thuc/00-INDEX.md";
+loadDoc();
+</script>
+</body>
+</html>

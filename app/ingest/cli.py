@@ -13,7 +13,7 @@ from .utils import collect_files, group_by_type
 
 def main():
     parser = argparse.ArgumentParser(
-        description="Ingest multimedia (video/audio/image) vào BetterDay v2."
+        description="Ingest multimedia (video/audio/image) vào FUFU v2."
     )
     parser.add_argument("paths", nargs="+", help="File hoặc thư mục")
     parser.add_argument(

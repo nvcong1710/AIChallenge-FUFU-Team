@@ -10,7 +10,7 @@ DEFAULT_CONFIG_PATH = PROJECT_ROOT / "config" / "settings.yaml"
 
 @lru_cache(maxsize=1)
 def get_config(path: str | None = None) -> dict:
-    cfg_path = Path(path or os.environ.get("BETTERDAY_CONFIG", DEFAULT_CONFIG_PATH))
+    cfg_path = Path(path or os.environ.get("FUFU_CONFIG", DEFAULT_CONFIG_PATH))
     with open(cfg_path, "r", encoding="utf-8") as f:
         cfg = yaml.safe_load(f)
 

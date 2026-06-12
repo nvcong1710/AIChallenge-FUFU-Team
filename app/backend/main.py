@@ -11,7 +11,7 @@ from .api.search import router as search_router
 cfg = get_config()
 ensure_storage_dirs(cfg)
 
-app = FastAPI(title="BetterDay v2", version="0.1.0")
+app = FastAPI(title="FUFU v2", version="0.1.0")
 
 app.add_middleware(
     CORSMiddleware,
@@ -32,6 +32,6 @@ app.include_router(search_router)
 @app.get("/")
 def root():
     return {
-        "service": "BetterDay v2",
+        "service": "FUFU v2",
         "endpoints": ["/health", "/api/search", "/api/stats", "/thumbnails/{...}"],
     }
