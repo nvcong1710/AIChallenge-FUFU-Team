@@ -22,6 +22,9 @@ PHẦN I — NỀN TẢNG DEEP LEARNING          PHẦN II — CÁC MODEL TRONG 
                │
 PHẦN III — HỆ RETRIEVAL                  PHẦN IV — KỸ NĂNG THỰC CHIẾN
 13 → 14 → 15  (cần 07)                   16 → 17 → 18 → 19  (cần I + III)
+
+PHẦN V — HỆ THI ĐẤU & KỸ THUẬT CUỘC THI
+20  (cần 07, 13-15, 19 — đọc cùng RESEARCH-PLAN §1.4)
 ```
 
 - **Đường tắt cho người gấp:** 01 → 02 → 04 → 07 → 13 → 14 → 15 → 17 → 19.
@@ -67,6 +70,12 @@ PHẦN III — HỆ RETRIEVAL                  PHẦN IV — KỸ NĂNG THỰC C
 | 17 | [Chỉnh siêu tham số](17-hyperparameter-tuning.md) | Tham số nào của FUFU tune được, grid/random/Optuna, eval-driven |
 | 18 | [Kết hợp model: ensemble & fusion](18-ensemble-fusion.md) | Score/rank fusion, RRF, multi-encoder ensemble |
 | 19 | [Đánh giá hệ retrieval](19-danh-gia-retrieval-eval.md) | Recall@K, MRR, nDCG, tự xây eval set theo format thi |
+
+### Phần V — Hệ thi đấu & kỹ thuật cuộc thi
+
+| # | Chương | Nội dung chính |
+|---|---|---|
+| 20 | [Hệ truy xuất tương tác & kỹ thuật thi đấu (VBS/LSC)](20-he-truy-xuat-tuong-tac-vbs-lsc.md) | vitrivr, lifeXplore, MEMORIA; nhiều cửa truy vấn, temporal `<`, SOM browsing, graph DB; bài học VBS |
 
 ---
 
