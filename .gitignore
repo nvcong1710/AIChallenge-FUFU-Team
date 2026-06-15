@@ -39,3 +39,6 @@ Thumbs.db
 
 # Misc
 *.pdf
+
+# Reference papers downloaded as sources (large/copyrighted — keep only the README index in git)
+docs/nguon-tham-khao/*.html

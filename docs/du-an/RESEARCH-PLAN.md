@@ -15,7 +15,8 @@
 | Năm | Top 3 | Ghi chú |
 |---|---|---|
 | **VBS 2026** (Prague, 17 đội) | 🥇 **PraK V4** · 🥈 **NII-UIT** · 🥉 Exquisitor | |
-| **VBS 2025** (Nara) | 🥇 **NII-UIT** · 🥈 PraK V3 · 🥉 diveXplore | NII-UIT = đội có gốc VN (UIT + NII Tokyo) |
+| **VBS 2025** (Nara) | 🥇 **NII-UIT** (Best Expert) · 🥉 VEAGLE (Best Novice) | NII-UIT = đội gốc VN (UIT + NII Tokyo); VEAGLE dùng eye-gaze |
+| **VBS 2024** | 🥇 **VISIONE 5.0** (ISTI-CNR) · 🥈 Vibro · 🥉 diveXplore | VISIONE = ensemble nhiều embedding (xem §1.3) |
 | 2022-2023 | 🥇 Vibro | CLIP + browsing UI cực nhanh |
 
 **Kỹ thuật của các hệ top (đã verify qua paper):**
@@ -63,6 +64,56 @@ temporal scoring qua segment liên tiếp · external image search cho entity VN
 - Frame-averaged image encoder (kiểu SigLIP) **mất thông tin chuyển động** — model có cross-frame attention (X-CLIP/CLIP2Video) tốt hơn rõ trên query hành động.
 - Tuy nhiên với format KIS-trên-keyframe (VBS/AIC), **image-text encoder mạnh vẫn là trụ chính** — các đội top đều dùng CLIP-family per-frame, bù temporal bằng **thuật toán scoring** (không phải bằng video encoder).
 - **Ensemble nhiều encoder > một encoder tốt nhất** (VISIONE đã chứng minh nhiều năm).
+
+### 1.4 Kiến trúc tham chiếu mã nguồn mở & "menu cửa truy vấn" (từ vitrivr / lifeXplore / LSC)
+
+> Bổ sung 2026-06-15 sau khi đọc: vitrivr (ACM MM 2016), lifeXplore (LSC'20 & LSC'24),
+> MEMORIA (LSC'23), kết quả VBS 2025 (arXiv 2509.12000) + roster VBS teams.
+
+**vitrivr — stack tham chiếu mở của giới nghiên cứu** (Rossetto et al., ACM MM 2016; vẫn dự thi VBS 2025/2026 dưới tên *vitrivr-engine*):
+
+- 3 tầng tách bạch: **Cineast** (engine trích đặc trưng + truy vấn) → **Cottontail DB / ADAMpro** (CSDL vector + boolean) → **vitrivr-ng** (UI web). Đây đúng mô hình "extractor / index / UI tách rời" mà FUFU đang theo → đáng đọc để học cách họ tổ chức multi-feature và fuse nhiều kênh trong 1 query.
+- Hỗ trợ **nhiều "cửa" truy vấn cùng lúc rồi fuse**: query-by-example, **query-by-sketch** (sketch màu + sketch cạnh), **query-by-motion** (vẽ đường chuyển động), text/concept, audio, boolean/metadata filter, temporal. → minh chứng kinh điển cho luận điểm "nhiều cửa bổ trợ" ở §1.1.
+
+**Catalog modality truy vấn / duyệt mà FUFU CHƯA có** (gộp từ vitrivr, lifeXplore, MEMORIA, roster VBS):
+
+| Modality (từ khóa mới) | Là gì | Đội dùng |
+|---|---|---|
+| **Query-by-sketch** (color/edge) + "magic brush" | vẽ phác bố cục/màu → match frame | vitrivr, SnapSeek, lifeXplore |
+| **Query-by-motion** (motion sketch) | vẽ quỹ đạo chuyển động của đối tượng trong frame | vitrivr |
+| **SOM / feature-map / grid browsing** | xếp keyframe tương tự thành lưới 2D (Self-Organizing Map) để mắt quét nhanh thay vì cuộn list | lifeXplore, diveXplore |
+| **Concept search + filter** | lọc theo bộ concept định sẵn (vd YOLO9000) + metadata | lifeXplore, MEMORIA |
+| **Uniform sampling** vs shot-detect | lấy keyframe đều theo thời gian thay vì theo shot (đối nghịch TransNetV2 §1.2) | lifeXplore |
+| **Eye-gaze-assisted** | dùng hướng nhìn operator để dẫn hướng kết quả | VEAGLE (Best Novice VBS2025) |
+| **Emotion-based retrieval** | truy theo cảm xúc của cảnh | vitrivr-engine (VBS2026) |
+| **VR / mixed-reality / panoramic** | duyệt trong không gian 3D/VR | vitrivr-VR, MediaMix, TapesVRy |
+| **Autonomous agent loop** | agent tự gọi search/verify lặp đến khi tự tin | "Autonomous Agents" (Ho-Le, VBS2026) — khớp **Automated track** AIC2026 |
+
+**LSC (Lifelog Search Challenge)** — cuộc thi "anh em" của VBS, cùng tổ chức tại ICMR, cùng ban (Schoeffmann, Gurrin). Domain là ảnh đời sống cá nhân nhưng **kỹ thuật chuyển thẳng sang KIS video**: concept search, OCR, lọc metadata/thời gian, **moment retrieval**. lifeXplore & MEMORIA là 2 hệ tiêu biểu — đáng tham khảo phần UI duyệt nhanh (SOM) và moment retrieval.
+
+**Roster VBS 2025/2026 — hệ/đội mới đáng để mắt** (ngoài top đã nêu §1.1):
+
+- **VBS2024 winner = VISIONE 5.0** (ISTI-CNR) — bổ sung mốc còn thiếu trong bảng §1.1; 🥈 Vibro (best textual KIS), 🥉 diveXplore (best QA/novice).
+- **HORUS / VIREO / ViewsInsight 2.0** — đều dùng **MLLM (multimodal LLM)** để caption/sinh query tự động → cùng hướng B1.
+- **EAGLE → H-EAGLE** — retrieval ngữ nghĩa **đa tầng/phân cấp** (hierarchical multi-level semantic).
+- **Fusionista (2.0)** — "3D information fusion" cho truy vấn hiệu quả.
+
+#### Đọc sâu — lifeXplore 2024 & MEMORIA (file local trong [docs/nguon-tham-khao/](nguon-tham-khao/README.md) — đã đọc full-text 2026-06-15)
+
+**lifeXplore 2024** (vô địch LSC2023; FAISS + OpenCLIP) — nhiều chi tiết triển khai **dùng ngay được**:
+
+- **Temporal search bằng dấu `<`**: query nhiều "phần" cách nhau bởi `<` (vd `man with red shirt -o person < plane flight < -h 120+`). Thuật toán xử lý **ngược từ phần CUỐI**: lấy kết quả phần cuối → với mỗi kết quả, kiểm tra phần trước có kết quả **cùng ngày & thời gian sớm hơn** không; không có thì loại. → mẫu cụ thể cho **A1/A4**, khác cách "cộng dồn similarity" của MADTempo.
+- **Kết hợp FAISS + MongoDB** (dense + filter có cấu trúc): lấy top-K lớn từ FAISS (vd 5000) → dùng list image-id làm filter đầu vào cho truy vấn MongoDB (object/concept/text/metadata). → mẫu cụ thể cho **E7** và hybrid.
+- **Position sub-filter**: tiền-tính vị trí bounding box (`top-left`/`bottom-right`) lúc ingest → cho phép `-o person|position:top-left`. Bản nhẹ của **localized query** kiểu PraK V4.
+- **Query-building UI dạng block**: mỗi block = 1 phần temporal, kéo ngang để nối; trong block thêm nhiều filter/sub-filter → tham khảo cho **E1**.
+- **Eval chọn model**: so OpenCLIP ViT-B/32 → bigG/14 trên query LSC bằng **Recall@K theo từng hint tăng dần** (KIS thêm hint mỗi 30s); **ViT-L/14 (LAION2B) thắng** → cách làm **F1** + lưu ý chọn checkpoint.
+- Extractor stack: EfficientNet-B2 (Places365 concept), YOLOv7 (COCO object), CRAFT (text detect+OCR), OpenCLIP ViT-L/14. Gộp query-server + index-server vào 1 process Python để bỏ overhead IPC (bài học latency **E2**).
+
+**MEMORIA LSC2023:**
+
+- Đổi **CSDL quan hệ → graph database (Neo4j)** + full-text search; tác giả đo Neo4j > PostgreSQL cho multimedia retrieval (ý tưởng index thay thế — tham khảo).
+- **Event segmentation phân cấp** theo semantic location / activity / transport mode (clustering GPS) — chia chuỗi thành "sự kiện"; tư duy "segment theo ngữ nghĩa" có thể vận vào nhóm keyframe.
+- Annotation: CLIP + **ClipCap** (sinh caption) + YOLO concept — cùng hướng caption/**D1**.
 
 ---
 
@@ -112,6 +163,7 @@ thông minh hơn, (3) tooling thi đấu (UI + tốc độ + eval), (4) ensemble
 | **B2** | **External image search fallback** cho entity ngoài tri thức (người nổi tiếng VN, địa danh): query → Google/Bing Images top-5 → SigLIP encode → query-by-image vào FAISS | QUEST + MADTempo (cả 2 đội 2025 đều làm) | 🔥🔥🔥 cho video tin tức | M | ☐ |
 | **B3** | **Query-by-image upload** (operator dán ảnh/URL) — nền tảng cho B2, Visual KIS dùng trực tiếp | VISIONE, PraK, mọi hệ top | 🔥🔥 | S | ☐ |
 | B4 | Sinh ảnh từ query bằng SDXL-turbo → query-by-image (khi không có ảnh thật) | NII-UIT 2025 | 🔥 | M | ☐ |
+| B5 | **Query-by-sketch**: operator vẽ phác bố cục/màu → encode (SigLIP image hoặc kênh color/edge) → query-by-image vào FAISS | vitrivr (QBS chuẩn), SnapSeek "magic brush", lifeXplore | 🔥 | M | ☐ |
 
 ### Nhóm C — Retrieval core (chất lượng ranking)
 
@@ -140,7 +192,9 @@ thông minh hơn, (3) tooling thi đấu (UI + tốc độ + eval), (4) ensemble
 | **E2** | **Latency tuning**: profile end-to-end, song song hoá 3 kênh (hiện chạy tuần tự), cache query expansion, mục tiêu <500ms | TycheVid, PraK V4 parallelized backend | 🔥🔥 | S-M | ☐ |
 | E3 | Relevance feedback (✓/✗ → dịch query vector, Rocchio hoặc adapter δ) | Exquisitor 🥉 VBS2026, SnapSeek; BAO-CAO §9.2 | 🔥🔥 | M | ☐ |
 | E4 | QA-assist: VLM đọc top frame + ASR → đề xuất đáp án cho task Q&A | NII-UIT 2026 VQA | 🔥🔥 (nếu có task QA) | M | ☐ |
-| E5 | Agent mode cho **Automated track**: LLM orchestrator gọi search/verify/temporal-check tools tự loop đến khi confident | BAO-CAO GP#3; xu hướng 2026 "trợ lý ảo" | 🔥🔥 | L | ☐ |
+| E5 | Agent mode cho **Automated track**: LLM orchestrator gọi search/verify/temporal-check tools tự loop đến khi confident | BAO-CAO GP#3; **"Autonomous Agents" VBS2026** (Ho-Le); xu hướng 2026 "trợ lý ảo" | 🔥🔥 | L | ☐ |
+| **E6** | **SOM / grid browsing**: xếp top-K + lân cận embedding thành lưới 2D self-organizing để operator quét bằng mắt thay vì cuộn list dọc | lifeXplore, diveXplore (UI duyệt = vũ khí LSC/VBS) | 🔥🔥 | M | ☐ |
+| E7 | **Concept/metadata filter panel**: lọc nhanh song song search theo object/OCR/thời lượng/khung giờ | vitrivr, lifeXplore, MEMORIA | 🔥 | S | ☐ |
 
 ### Nhóm F — Nền tảng (làm trước mọi thứ khác)
 
@@ -199,3 +253,12 @@ thông minh hơn, (3) tooling thi đấu (UI + tốc độ + eval), (4) ensemble
 - [Hybrid CLIP + BEiT-3 system (SOICT 2024)](https://link.springer.com/chapter/10.1007/978-981-96-4291-5_17)
 - [Video Embedding Benchmark 2026 (Mixpeek)](https://mixpeek.com/blog/video-embedding-benchmark-2026)
 - [HCM AI Challenge official site](https://aichallenge.hochiminhcity.gov.vn/en/home)
+
+**Bổ sung 2026-06-15 (kiến trúc tham chiếu & query modalities — §1.4):**
+
+- [vitrivr: A Flexible Retrieval Stack Supporting Multiple Query Modes (Rossetto et al., ACM MM 2016)](https://doras.dcu.ie/32428/1/ACMMM16_vitrivr.pdf) — Cineast + ADAMpro + vitrivr-ng; QBE/QBS/motion/audio
+- [lifeXplore at LSC 2020 (arXiv 2508.21397)](https://arxiv.org/abs/2508.21397) — feature-map/SOM browsing, concept search, sketch, YOLO9000, OCR, uniform sampling
+- [lifeXplore at LSC 2024 (DOI 10.1145/3643489.3661123)](https://dl.acm.org/doi/10.1145/3643489.3661123) — CLIP+FAISS free-text + concept/object/OCR/metadata filter
+- [MEMORIA — Memory Enhancement & Moment Retrieval, LSC 2023 (DOI 10.1145/3592573.3593099)](https://dl.acm.org/doi/10.1145/3592573.3593099)
+- [Results of the 2025 Video Browser Showdown (arXiv 2509.12000)](https://arxiv.org/abs/2509.12000) — kết quả chính thức VBS2025 (NII-UIT vô địch, VEAGLE best novice)
+- [VBS Teams & Papers (all years)](https://videobrowsershowdown.org/teams/) · [VBS Hall of Fame](https://videobrowsershowdown.org/hall-of-fame/) · [Lifelog Search Challenge](http://lifelogsearch.org/)
