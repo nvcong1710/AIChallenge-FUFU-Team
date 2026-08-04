@@ -5,6 +5,8 @@
 > và đưa ra **menu ý tưởng** xếp hạng theo impact/effort để chọn lựa thực thi.
 >
 > Cập nhật: 2026-06-12. Trạng thái: **chờ chọn ý tưởng** (đánh dấu ✅ vào cột "Chọn" rồi triển khai theo §6).
+>
+> 🆕 **2026-06-26:** menu A1–F2 dưới đây = **sao chép kỹ thuật đội thắng** (để ngang mặt sàn). Phần **kỹ thuật SÁNG TẠO để VƯỢT lên** (querybank-norm, domain-adapt encoder, visual-HyDE, chính sách submit hiệu chỉnh…) chuyển sang [KE-HOACH-SANG-TAO-2026.md](KE-HOACH-SANG-TAO-2026.md). Đọc file đó cho hướng "đốt ingest → thắng query".
 
 ---
 
@@ -43,7 +45,7 @@ hiệu quả, (4) nhiều "cửa" truy vấn bổ trợ nhau** (text/image/OCR/A
 
 - **Format 2024** (paper tổng kết chính thức): 1.471 video tin tức / 328 giờ; nhiệm vụ **Textual KIS, Visual KIS (clip mẫu), Q&A** — trả về đúng video+timestamp; chấm theo thời gian + số lần submit sai.
 - **Format 2025**: thêm **TRAKE** (Temporal Retrieval and Alignment of Key Events) — cho 1 chuỗi mô tả nhiều "moment" trong **một** video, phải trả về **đúng frame cho từng moment**. Đây là dạng "multi-event temporal" mà các đội yếu temporal sẽ chết.
-- **2026** (theo BAO-CAO trong repo): "Trợ lý ảo phân tích & truy xuất multimedia", 2 track **Traditional + Automated** → kỹ năng nền giữ nguyên, thêm chiều agent/tự động.
+- **2026 Sơ Tuyển (Official PDF)**: Có 3 dạng truy vấn: **Textual KIS, Q&A, và TRAKE**. Metric đánh giá KHÔNG phải thời gian/phạt nộp sai, mà là **Trung bình của Top-k R-Score (R@1, R@5, R@20, R@50, R@100)** — cho phép nộp tới 100 đáp án/câu hỏi. Hỗ trợ batch 1: Video, Keyframes, Objects (Faster R-CNN), CLIP (ViT-B-32), Metadata.
 
 **Kỹ thuật các đội top VN (qua paper SOICT/arXiv):**
 
@@ -151,7 +153,7 @@ thông minh hơn, (3) tooling thi đấu (UI + tốc độ + eval), (4) ensemble
 | # | Ý tưởng | Bằng chứng | Impact | Effort | Chọn |
 |---|---|---|---|---|---|
 | **A1** | **Temporal pair query** "A rồi B": 2 ô query, score(seg_i, A) + max score(seg_{i+1..i+k}, B), cộng dồn → rank cặp | PraK temporal fusion, NII-UIT dynamic temporal search, MADTempo | 🔥🔥🔥 | M | ☐ |
-| **A2** | **DANTE-style DP alignment** cho TRAKE: cho N mô tả moment + 1 video → DP tìm chuỗi frame tăng dần theo thời gian có tổng similarity max | AIO_Owlgorithms 2025 | 🔥🔥🔥 (nếu 2026 giữ TRAKE) | M | ☐ |
+| **A2** | **DANTE-style DP alignment** cho TRAKE: cho N mô tả moment + 1 video → DP tìm chuỗi frame tăng dần theo thời gian có tổng similarity max | AIO_Owlgorithms 2025 | 🔥🔥🔥 (TRAKE đã CHỐT sơ tuyển 2026) | M | ☐ |
 | **A3** | **Within-video search mode**: chọn 1 video → search/browse chỉ trong video đó (timeline strip + query) | PraK V4, NII-UIT 2026 | 🔥🔥 | M | ☐ |
 | A4 | Bidirectional adaptive temporal search (mở rộng A1 hai chiều, độ rộng cửa sổ thích nghi) | arXiv 2504.09298 | 🔥 | S (sau A1) | ☐ |
 
@@ -191,7 +193,7 @@ thông minh hơn, (3) tooling thi đấu (UI + tốc độ + eval), (4) ensemble
 | **E1** | **UI thi đấu**: video player nhảy đúng segment, phím tắt, temporal context strip (frame ±lân cận), nút submit (nối API BTC khi có), lịch sử query | TycheVid (tốc độ = vũ khí), PraK keyframe layout | 🔥🔥🔥 | M-L | ☐ |
 | **E2** | **Latency tuning**: profile end-to-end, song song hoá 3 kênh (hiện chạy tuần tự), cache query expansion, mục tiêu <500ms | TycheVid, PraK V4 parallelized backend | 🔥🔥 | S-M | ☐ |
 | E3 | Relevance feedback (✓/✗ → dịch query vector, Rocchio hoặc adapter δ) | Exquisitor 🥉 VBS2026, SnapSeek; BAO-CAO §9.2 | 🔥🔥 | M | ☐ |
-| E4 | QA-assist: VLM đọc top frame + ASR → đề xuất đáp án cho task Q&A | NII-UIT 2026 VQA | 🔥🔥 (nếu có task QA) | M | ☐ |
+| E4 | QA-assist: VLM đọc top frame + ASR → đề xuất đáp án cho task Q&A | NII-UIT 2026 VQA | 🔥🔥 (Q&A đã CHỐT sơ tuyển 2026) | M | ☐ |
 | E5 | Agent mode cho **Automated track**: LLM orchestrator gọi search/verify/temporal-check tools tự loop đến khi confident | BAO-CAO GP#3; **"Autonomous Agents" VBS2026** (Ho-Le); xu hướng 2026 "trợ lý ảo" | 🔥🔥 | L | ☐ |
 | **E6** | **SOM / grid browsing**: xếp top-K + lân cận embedding thành lưới 2D self-organizing để operator quét bằng mắt thay vì cuộn list dọc | lifeXplore, diveXplore (UI duyệt = vũ khí LSC/VBS) | 🔥🔥 | M | ☐ |
 | E7 | **Concept/metadata filter panel**: lọc nhanh song song search theo object/OCR/thời lượng/khung giờ | vitrivr, lifeXplore, MEMORIA | 🔥 | S | ☐ |
